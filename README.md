@@ -59,8 +59,8 @@ existing install first, and it will not touch your `CLAUDE.md` or `settings.json
 without showing you the exact change and waiting for a yes.
 
 ```
-I downloaded the Flight Deck skill package. Install it for me, following these steps
-exactly and stopping for confirmation where noted.
+I downloaded the Flight Deck skill package into this directory. Install it for me,
+following these steps exactly and stopping for confirmation where noted.
 
 1. Check for an existing install first. Look for ~/.claude/skills/mission-control/ and
 ~/.claude/skills/test-discipline/, and check whether ~/.claude/CLAUDE.md already has a
@@ -82,11 +82,13 @@ appended, and wait for my explicit confirmation before writing anything.
 4. Offer the hooks, do not install them on your own. Read hooks/HOOKS.md from this
 package. Show me what verify-reminder and fanout-guard each do, and the exact JSON
 that would be added to ~/.claude/settings.json to register them. Ask which ones, if
-any, I want. Only once I confirm, copy the chosen hook script(s) into ~/.claude/hooks/,
-make each one executable with chmod +x, and apply the settings.json change, showing
-the diff first if settings.json already has content in the relevant section. Before
-reporting a hook as registered, check that jq is installed and on PATH, and warn me
-if it is not, since both hooks need jq to run.
+any, I want.
+
+Only once I confirm: copy the chosen hook script(s) into ~/.claude/hooks/ and make
+each one executable with chmod +x. If settings.json already has content in the
+relevant section, show me the diff before writing it, otherwise just apply the
+change. Before reporting a hook as registered, check that jq is installed and on
+PATH, and warn me if it is not, since both hooks need jq to run.
 
 5. Finish with a plain summary: which files you copied, what, if anything, got
 appended to CLAUDE.md, and which hooks, if any, got registered. For anything I
