@@ -53,50 +53,29 @@ up-delegation" in `skills/mission-control/SKILL.md`.
 
 ### The installer prompt
 
-Copy the block below into a fresh session opened in the same directory as this
-package, and let it drive the install. It is written to be safe: it checks for an
-existing install first, and it will not touch your `CLAUDE.md` or `settings.json`
-without showing you the exact change and waiting for a yes.
+Copy the block below into a fresh Claude Code session. It is written to be safe: it
+clones the repo itself, checks for an existing install first, and it will not touch
+your `CLAUDE.md` or `settings.json` without showing you the exact change and waiting
+for a yes.
 
 ```
-I downloaded the Flight Deck skill package into this directory. Install it for me,
-following these steps exactly and stopping for confirmation where noted.
+Install the Flight Deck skill package for me from https://github.com/CaseReed/flight-deck, following these steps exactly and stopping for confirmation where noted.
 
-1. Check for an existing install first. Look for ~/.claude/skills/mission-control/ and
-~/.claude/skills/test-discipline/, and check whether ~/.claude/CLAUDE.md already has a
-Flight Deck activation block. If everything is already in place, tell me and stop
-there. Do not re-run steps or overwrite anything that is already installed.
+1. Clone the repo into a temporary directory (for example /tmp/flight-deck) and read its README.md, CLAUDE-md-activation.md, skills/, and hooks/ so you know what you are installing.
 
-2. Copy the skill folders. Copy skills/mission-control/ and skills/test-discipline/
-from this package into ~/.claude/skills/. If either folder already exists there, show
-me a diff against the incoming version before doing anything, and ask whether to
-overwrite, skip, or merge. Never overwrite silently.
+2. Check for an existing install first. Look for ~/.claude/skills/mission-control/ and ~/.claude/skills/test-discipline/, and check whether ~/.claude/CLAUDE.md already has a Flight Deck activation block. If everything is already in place, tell me and stop there. Do not re-run steps or overwrite anything that is already installed.
 
-3. Update ~/.claude/CLAUDE.md. Read CLAUDE-md-activation.md from this package. If
-~/.claude/CLAUDE.md does not exist yet, show me its full proposed contents and ask
-before creating it. If it exists and already contains this activation block (or an
-equivalent one covering the same triggers and opt-outs), tell me and make no change.
-Otherwise, show me the exact diff you intend to apply, including where it gets
-appended, and wait for my explicit confirmation before writing anything.
+3. Copy the skill folders. Copy skills/mission-control/ and skills/test-discipline/ from the clone into ~/.claude/skills/. If either folder already exists there, show me a diff against the incoming version before doing anything, and ask whether to overwrite, skip, or merge. Never overwrite silently.
 
-4. Offer the hooks, do not install them on your own. Read hooks/HOOKS.md from this
-package. Show me what verify-reminder and fanout-guard each do, and the exact JSON
-that would be added to ~/.claude/settings.json to register them. Ask which ones, if
-any, I want.
+4. Update ~/.claude/CLAUDE.md. Read CLAUDE-md-activation.md from the clone. If ~/.claude/CLAUDE.md does not exist yet, show me its full proposed contents and ask before creating it. If it exists and already contains this activation block (or an equivalent one covering the same triggers and opt-outs), tell me and make no change. Otherwise, show me the exact diff you intend to apply, including where it gets appended, and wait for my explicit confirmation before writing anything.
 
-Only once I confirm: copy the chosen hook script(s) into ~/.claude/hooks/ and make
-each one executable with chmod +x. If settings.json already has content in the
-relevant section, show me the diff before writing it, otherwise just apply the
-change. Before reporting a hook as registered, check that jq is installed and on
-PATH, and warn me if it is not, since both hooks need jq to run.
+5. Offer the hooks, do not install them on your own. Read hooks/HOOKS.md from the clone. Show me what verify-reminder and fanout-guard each do, and the exact JSON that would be added to ~/.claude/settings.json to register them. Ask which ones, if any, I want.
 
-5. Finish with a plain summary: which files you copied, what, if anything, got
-appended to CLAUDE.md, and which hooks, if any, got registered. For anything I
-declined, say it was skipped and how to run it later.
+Only once I confirm: copy the chosen hook script(s) into ~/.claude/hooks/ and make each one executable with chmod +x. If settings.json already has content in the relevant section, show me the diff before writing it, otherwise just apply the change. Before reporting a hook as registered, check that jq is installed and on PATH, and warn me if it is not, since both hooks need jq to run.
 
-Do not write to CLAUDE.md or settings.json without showing me the change first and
-getting a yes. If the package is already installed, say so and stop instead of
-repeating the steps.
+6. Finish with a plain summary: which files you copied, what, if anything, got appended to CLAUDE.md, and which hooks, if any, got registered. For anything I declined, say it was skipped and how to run it later. Then remove the temporary clone.
+
+Do not write to CLAUDE.md or settings.json without showing me the change first and getting a yes. If the package is already installed, say so and stop instead of repeating the steps.
 ```
 
 ### Manual install
