@@ -5,6 +5,23 @@ All notable changes to Flight Deck are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-07-07
+
+### Added
+
+- **Update-check hook** (`hooks/flight-deck-update-check.sh`): an optional
+  SessionStart hook that checks GitHub at most once a day for a release newer
+  than the installed `skills/mission-control/VERSION` and, when behind, injects
+  a note so the assistant tells you and offers to update. Non-blocking, never
+  auto-overwrites, fails open without jq, curl, or network.
+- **`VERSION` file** (`skills/mission-control/VERSION`): records the installed
+  release so the update-check hook can compare against the latest on GitHub.
+
+### Changed
+
+- README and HOOKS.md document the update-check hook, and the installer prompt
+  offers it (registered under SessionStart).
+
 ## [1.1.0] - 2026-07-07
 
 ### Added
@@ -45,5 +62,6 @@ Initial public release.
   default execution mode on Fable 5 and Opus-class sessions, with the start-of-session
   announcement and the opt-out phrases.
 
+[1.2.0]: https://github.com/CaseReed/flight-deck/releases/tag/v1.2.0
 [1.1.0]: https://github.com/CaseReed/flight-deck/releases/tag/v1.1.0
 [1.0.0]: https://github.com/CaseReed/flight-deck/releases/tag/v1.0.0

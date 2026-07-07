@@ -34,9 +34,11 @@ afterthought.
   changes: choose the proof before writing the code, run the repository's actual named
   check, cite its output, and scale how much proof a change needs to how big the change
   is. Called by mission-control's code lots, and usable on its own.
-- **hooks/** : two optional hooks: a non-blocking verify-reminder that nudges toward
-  verification before a push, and a fanout-guard that mechanically enforces the
-  model-tier calibration whether or not the skill loaded. Registration steps are in
+- **hooks/** : three optional hooks: a non-blocking verify-reminder that nudges toward
+  verification before a push, a fanout-guard that mechanically enforces the
+  model-tier calibration whether or not the skill loaded, and a SessionStart
+  update-check that, once a day, notices when a newer release is out and offers to
+  update (it never overwrites anything on its own). Registration steps are in
   `hooks/HOOKS.md`.
 - **output-styles/** : an optional `Concise` output style. It makes Claude lead with the
   answer, keep the initial response tight, and expand only on request, across all of
@@ -76,9 +78,9 @@ Install the Flight Deck skill package for me from https://github.com/CaseReed/fl
 
 4. Update ~/.claude/CLAUDE.md. Read CLAUDE-md-activation.md from the clone. If ~/.claude/CLAUDE.md does not exist yet, show me its full proposed contents and ask before creating it. If it exists and already contains this activation block (or an equivalent one covering the same triggers and opt-outs), tell me and make no change. Otherwise, show me the exact diff you intend to apply, including where it gets appended, and wait for my explicit confirmation before writing anything.
 
-5. Offer the hooks, do not install them on your own. Read hooks/HOOKS.md from the clone. Show me what verify-reminder and fanout-guard each do, and the exact JSON that would be added to ~/.claude/settings.json to register them. Ask which ones, if any, I want.
+5. Offer the hooks, do not install them on your own. Read hooks/HOOKS.md from the clone. Show me what verify-reminder, fanout-guard, and flight-deck-update-check each do, and the exact JSON that would be added to ~/.claude/settings.json to register them (verify-reminder and fanout-guard go under PreToolUse, flight-deck-update-check goes under SessionStart). Ask which ones, if any, I want.
 
-Only once I confirm: copy the chosen hook script(s) into ~/.claude/hooks/ and make each one executable with chmod +x. If settings.json already has content in the relevant section, show me the diff before writing it, otherwise just apply the change. Before reporting a hook as registered, check that jq is installed and on PATH, and warn me if it is not, since both hooks need jq to run.
+Only once I confirm: copy the chosen hook script(s) into ~/.claude/hooks/ and make each one executable with chmod +x. If settings.json already has content in the relevant section, show me the diff before writing it, otherwise just apply the change. Before reporting a hook as registered, check that jq is installed and on PATH, and warn me if it is not, since the hooks need jq to run (the update-check also needs curl).
 
 6. Finish with a plain summary: which files you copied, what, if anything, got appended to CLAUDE.md, whether the Concise output style was copied and that it stays off until I run /output-style Concise, and which hooks, if any, got registered. For anything I declined, say it was skipped and how to run it later. Then remove the temporary clone.
 
@@ -98,6 +100,15 @@ Do not write to CLAUDE.md or settings.json without showing me the change first a
 4. Optional: read `hooks/HOOKS.md` and register the hooks you want in
    `~/.claude/settings.json`.
 5. Restart your session.
+
+## Staying up to date
+
+The optional update-check hook (`flight-deck-update-check.sh`) nudges you at session
+start when a newer Flight Deck release ships on GitHub, once a day at most. Updating
+just means re-running the installer prompt above: it clones the current release,
+shows you a diff against what is installed, and asks before overwriting anything, so
+staying current is always a reviewed, opt-in step. This protects installs from
+v1.2.0 onward, since it needs both the hook itself and the `VERSION` file it reads.
 
 ## Requirements
 
