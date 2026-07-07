@@ -34,6 +34,13 @@ afterthought.
   changes: choose the proof before writing the code, run the repository's actual named
   check, cite its output, and scale how much proof a change needs to how big the change
   is. Called by mission-control's code lots, and usable on its own.
+- **skills/design-fidelity/** : the design-handoff companion. Governs the Claude
+  Design to Claude Code handoff and proves, in a real browser, that the shipped
+  UI matches the design. It owns an independent fidelity gate (design reference
+  vs the rendered UI, a structured rubric, a gap contract, token discipline, a
+  ranked punch-list, an adversarial re-check) and orchestrates the build through
+  mission-control, test-discipline, and a craft skill (frontend-design by
+  default), reproducing the design rather than reinventing it.
 - **hooks/** : three optional hooks: a non-blocking verify-reminder that nudges toward
   verification before a push, a fanout-guard that mechanically enforces the
   model-tier calibration whether or not the skill loaded, and a SessionStart
@@ -72,9 +79,9 @@ Install the Flight Deck skill package for me from https://github.com/CaseReed/fl
 
 1. Clone the repo into a temporary directory (for example /tmp/flight-deck) and read its README.md, CLAUDE-md-activation.md, skills/, and hooks/ so you know what you are installing.
 
-2. Check for an existing install first. Look for ~/.claude/skills/mission-control/ and ~/.claude/skills/test-discipline/, check whether ~/.claude/CLAUDE.md already has a Flight Deck activation block, and check whether ~/.claude/output-styles/concise.md already exists. If everything is already in place, tell me and stop there. Do not re-run steps or overwrite anything that is already installed.
+2. Check for an existing install first. Look for ~/.claude/skills/mission-control/, ~/.claude/skills/test-discipline/, and ~/.claude/skills/design-fidelity/, check whether ~/.claude/CLAUDE.md already has a Flight Deck activation block, and check whether ~/.claude/output-styles/concise.md already exists. If everything is already in place, tell me and stop there. Do not re-run steps or overwrite anything that is already installed.
 
-3. Copy the skill folders. Copy skills/mission-control/ and skills/test-discipline/ from the clone into ~/.claude/skills/. If either folder already exists there, show me a diff against the incoming version before doing anything, and ask whether to overwrite, skip, or merge. Never overwrite silently. Also copy output-styles/concise.md into ~/.claude/output-styles/, with the same safety: if it already exists, show me a diff before overwriting.
+3. Copy the skill folders. Copy skills/mission-control/, skills/test-discipline/, and skills/design-fidelity/ from the clone into ~/.claude/skills/. If any of these folders already exists there, show me a diff against the incoming version before doing anything, and ask whether to overwrite, skip, or merge. Never overwrite silently. Also copy output-styles/concise.md into ~/.claude/output-styles/, with the same safety: if it already exists, show me a diff before overwriting.
 
 4. Update ~/.claude/CLAUDE.md. Read CLAUDE-md-activation.md from the clone. If ~/.claude/CLAUDE.md does not exist yet, show me its full proposed contents and ask before creating it. If it exists and already contains this activation block (or an equivalent one covering the same triggers and opt-outs), tell me and make no change. Otherwise, show me the exact diff you intend to apply, including where it gets appended, and wait for my explicit confirmation before writing anything.
 
@@ -89,7 +96,7 @@ Do not write to CLAUDE.md or settings.json without showing me the change first a
 
 ### Manual install
 
-1. Copy `skills/mission-control/` and `skills/test-discipline/` into
+1. Copy `skills/mission-control/`, `skills/test-discipline/`, and `skills/design-fidelity/` into
    `~/.claude/skills/` (or into a project's own `.claude/skills/` for a
    project-only install).
 2. Open `CLAUDE-md-activation.md`, copy the block, and paste it into your global
@@ -122,7 +129,7 @@ and asking before anything is deleted.
 Uninstall the Flight Deck skill package for me, following these steps exactly and stopping for confirmation before anything is deleted or changed. Never delete or edit anything without showing me first, and only touch Flight Deck's own files and settings, nothing else.
 
 1. Inventory the install first. Check for each of these and show me a plain list of what is present and what is already gone:
-   - ~/.claude/skills/mission-control/ and ~/.claude/skills/test-discipline/ (either real folders or symlinks)
+   - ~/.claude/skills/mission-control/, ~/.claude/skills/test-discipline/, and ~/.claude/skills/design-fidelity/ (either real folders or symlinks)
    - ~/.claude/output-styles/concise.md
    - the hook scripts ~/.claude/hooks/fable5-fanout-guard.sh, ~/.claude/hooks/verify-reminder.sh, ~/.claude/hooks/flight-deck-update-check.sh
    - their entries in ~/.claude/settings.json (under hooks: PreToolUse for fable5-fanout-guard and verify-reminder, SessionStart for flight-deck-update-check)
@@ -130,7 +137,7 @@ Uninstall the Flight Deck skill package for me, following these steps exactly an
    - the cache file ~/.claude/.flight-deck-update-check
    If none of these are present, tell me Flight Deck is not installed and stop.
 
-2. Remove the skills. Delete ~/.claude/skills/mission-control/ and ~/.claude/skills/test-discipline/, whether each is a real folder or a symlink. Tell me exactly what you will remove and wait for my yes.
+2. Remove the skills. Delete ~/.claude/skills/mission-control/, ~/.claude/skills/test-discipline/, and ~/.claude/skills/design-fidelity/, whether each is a real folder or a symlink. Tell me exactly what you will remove and wait for my yes.
 
 3. Remove the output style. Delete ~/.claude/output-styles/concise.md. If ~/.claude/settings.json has "outputStyle" set to "Concise", tell me, since you cannot change the active style for me: I will run /output-style default myself. Ask before deleting.
 
@@ -147,7 +154,7 @@ Do not delete or edit ~/.claude/CLAUDE.md or ~/.claude/settings.json without sho
 
 ### Manual uninstall
 
-1. Remove `~/.claude/skills/mission-control/` and `~/.claude/skills/test-discipline/`
+1. Remove `~/.claude/skills/mission-control/`, `~/.claude/skills/test-discipline/`, and `~/.claude/skills/design-fidelity/`
    (folders or symlinks).
 2. Remove `~/.claude/output-styles/concise.md`, and run `/output-style default` if it
    was your active style.

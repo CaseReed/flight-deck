@@ -5,6 +5,20 @@ All notable changes to Flight Deck are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-07-08
+
+### Added
+
+- **design-fidelity skill**: a verified Claude Design to Claude Code bridge. It
+  owns an independent, browser-grounded fidelity gate (design reference vs the
+  rendered UI, a structured rubric, a gap contract, token discipline, a ranked
+  punch-list, and an adversarial re-check) and orchestrates import and build by
+  calling the confirmed slash commands, mission-control, test-discipline, and a
+  craft skill (frontend-design by default, ui-ux-pro-max when present), rather
+  than reimplementing them. The Claude Design reference stays authoritative and
+  the skill depends only on stable primitives, never on the undocumented beta
+  claude-design MCP internals.
+
 ## [1.3.1] - 2026-07-07
 
 ### Changed
@@ -83,6 +97,7 @@ Initial public release.
   default execution mode on Fable 5 and Opus-class sessions, with the start-of-session
   announcement and the opt-out phrases.
 
+[1.4.0]: https://github.com/CaseReed/flight-deck/releases/tag/v1.4.0
 [1.3.0]: https://github.com/CaseReed/flight-deck/releases/tag/v1.3.0
 [1.2.0]: https://github.com/CaseReed/flight-deck/releases/tag/v1.2.0
 [1.1.0]: https://github.com/CaseReed/flight-deck/releases/tag/v1.1.0
