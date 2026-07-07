@@ -5,6 +5,16 @@ All notable changes to Flight Deck are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2026-07-07
+
+### Changed
+
+- **Close-out knowledge pass is now per-surface and verified** (mission-control,
+  workflow step 11). It sweeps persistent memory, CLAUDE.md, and the project's own
+  internal docs one at a time, actually opening each rather than assuming one is
+  covered because another is, and it reports the outcome per surface so the pass is
+  auditable. A skip must be a checked conclusion, not an assumption.
+
 ## [1.3.0] - 2026-07-07
 
 ### Added

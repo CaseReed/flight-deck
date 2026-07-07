@@ -253,13 +253,22 @@ Stays inline for the frontier model (the only exceptions):
     and how, what was retried, what remains open. Never "everything looks good"
     without pointing at the evidence. Follow the concision contract above: lead with
     what was produced and verified, summary first, full detail on request.
-11. **Knowledge pass at close-out.** Once the work is confirmed done, record what is
-    durable and non-derivable (a decision, a gotcha, a new convention, a status that
-    outlives the session) to the right scope, and prune what this work made stale. Route
-    by scope: a project-specific fact goes to that project's memory or its CLAUDE.md, a
-    cross-project preference or doctrine goes to global memory or the global CLAUDE.md.
-    Skip anything the code, the git history, or an existing doc already records. If nothing
-    qualifies, that is fine, but the pass itself is not optional.
+11. **Knowledge pass at close-out, per surface and verified.** Once the work is
+    confirmed done, sweep three surfaces **one at a time, actually opening each**
+    rather than concluding "already covered" from memory: (a) **persistent memory**
+    (the MEMORY.md index and the entries this work touched), (b) **CLAUDE.md**, the
+    project's and the global one, (c) the **project's own internal docs** (README,
+    design notes, per-subsystem docs). Handling one surface is never grounds to skip
+    another, each is checked on its own. On each, record what is durable and
+    non-derivable that this work established (a decision, a gotcha, a new convention, a
+    status that outlives the session) and prune what it made stale. Route by scope: a
+    project-specific fact to that project's memory, CLAUDE.md, or docs; a cross-project
+    preference or doctrine to the global memory or CLAUDE.md. Skip only what the code,
+    the git history, or an existing doc already records, and a skip must be a
+    **checked** conclusion (surface opened, it holds), not an assumption. Report the
+    outcome per surface ("memory: added X; project CLAUDE.md: nothing new; docs:
+    nothing new") so the pass is auditable. The pass is never optional, and "partly
+    done" is not done.
 
 ## Defaults, the routing grid
 
