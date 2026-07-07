@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   owns an independent, browser-grounded fidelity gate (design reference vs the
   rendered UI, a structured rubric, a gap contract, token discipline, a ranked
   punch-list, and an adversarial re-check) and orchestrates import and build by
-  calling the confirmed slash commands, mission-control, test-discipline, and a
+  calling the documented slash commands, mission-control, test-discipline, and a
   craft skill (frontend-design by default, ui-ux-pro-max when present), rather
   than reimplementing them. The Claude Design reference stays authoritative and
   the skill depends only on stable primitives, never on the undocumented beta

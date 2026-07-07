@@ -5,7 +5,7 @@ description: >-
   browser, that the shipped UI matches the design. Owns an independent fidelity
   gate (design reference vs rendered UI, a structured rubric, a gap contract,
   token discipline, a ranked punch-list, and an adversarial re-check) and
-  orchestrates the rest by calling the confirmed slash commands for import plus
+  orchestrates the rest by calling the documented slash commands for import plus
   mission-control and test-discipline for the build, with frontend-design (or
   ui-ux-pro-max when present) as the build craft standard. The Claude Design
   reference is authoritative: craft fills what the design leaves undefined, it
@@ -16,6 +16,14 @@ description: >-
   "design handoff", "does the UI match the design", "verify design fidelity",
   or a Claude Design URL or export given as input. Opt out with "without
   design-fidelity" or "skip the fidelity check".
+when_to_use: >-
+  Fires when a Claude Design design (a URL, an export, or a handoff bundle)
+  must become shipped frontend and be proven, in a browser, to match the
+  design, on the trigger phrases or when such a reference is the task input;
+  on a mission-control session it also fires without being named. Opt out with
+  "without design-fidelity" or "skip the fidelity check".
+metadata:
+  author: Julien Tavernier
 ---
 
 # design-fidelity: verify the build against the design
@@ -48,7 +56,7 @@ in the close-out that the gate was skipped by request.
 Four stages, one line each. The pattern to notice: this skill composes, it does not
 rebuild what already exists.
 
-- **Import**: capture the design reference through the confirmed slash command for
+- **Import**: capture the design reference through the documented slash command for
   Claude Design import, or an export, when the command is unavailable. This skill does
   not reimplement that import logic.
 - **Build**: mission-control splits and calibrates the build lots, test-discipline
