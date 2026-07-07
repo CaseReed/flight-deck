@@ -110,6 +110,53 @@ shows you a diff against what is installed, and asks before overwriting anything
 staying current is always a reviewed, opt-in step. This protects installs from
 v1.2.0 onward, since it needs both the hook itself and the `VERSION` file it reads.
 
+## Uninstall
+
+Uninstalling is the mirror of installing: one prompt you paste into a fresh Claude
+Code session that removes Flight Deck's files and settings, showing you each change
+and asking before anything is deleted.
+
+### The uninstall prompt
+
+```
+Uninstall the Flight Deck skill package for me, following these steps exactly and stopping for confirmation before anything is deleted or changed. Never delete or edit anything without showing me first, and only touch Flight Deck's own files and settings, nothing else.
+
+1. Inventory the install first. Check for each of these and show me a plain list of what is present and what is already gone:
+   - ~/.claude/skills/mission-control/ and ~/.claude/skills/test-discipline/ (either real folders or symlinks)
+   - ~/.claude/output-styles/concise.md
+   - the hook scripts ~/.claude/hooks/fable5-fanout-guard.sh, ~/.claude/hooks/verify-reminder.sh, ~/.claude/hooks/flight-deck-update-check.sh
+   - their entries in ~/.claude/settings.json (under hooks: PreToolUse for fable5-fanout-guard and verify-reminder, SessionStart for flight-deck-update-check)
+   - a Flight Deck activation block in ~/.claude/CLAUDE.md
+   - the cache file ~/.claude/.flight-deck-update-check
+   If none of these are present, tell me Flight Deck is not installed and stop.
+
+2. Remove the skills. Delete ~/.claude/skills/mission-control/ and ~/.claude/skills/test-discipline/, whether each is a real folder or a symlink. Tell me exactly what you will remove and wait for my yes.
+
+3. Remove the output style. Delete ~/.claude/output-styles/concise.md. If ~/.claude/settings.json has "outputStyle" set to "Concise", tell me, since you cannot change the active style for me: I will run /output-style default myself. Ask before deleting.
+
+4. Remove the hooks and their registrations. Show me the exact ~/.claude/settings.json diff that removes ONLY the three Flight Deck hook entries, dropping any PreToolUse or SessionStart array that becomes empty and the hooks key itself if it becomes empty, and leaving every other hook and setting untouched. Also list the hook scripts you will delete from ~/.claude/hooks/. Wait for my yes, then apply.
+
+5. Remove the CLAUDE.md activation block. Read ~/.claude/CLAUDE.md and find the Flight Deck activation block, the mission-control activation rule matching the one in CLAUDE-md-activation.md. Show me the exact lines you propose to delete as a diff and wait for my explicit confirmation. If there is no single clean contiguous Flight Deck block, for example because I adapted or merged the activation into my own rules, do NOT guess or rewrite anything: show me the activation-related lines you found and ask me which to remove. Never touch unrelated parts of my CLAUDE.md.
+
+6. Remove the cache file ~/.claude/.flight-deck-update-check if it exists. This is a throwaway state file, no confirmation needed.
+
+7. Finish with a plain summary: what you removed, what you left in place, and anything I declined. Note that this does not touch the Flight Deck package itself, a local clone or the repo folder such as ~/Desktop/flight-deck; if I want that gone too, I will delete that folder myself. Suggest I restart Claude Code so the removed skills, hooks, and output style fully unload.
+
+Do not delete or edit ~/.claude/CLAUDE.md or ~/.claude/settings.json without showing me the exact change first and getting a yes. If something is already absent, just say so and move on.
+```
+
+### Manual uninstall
+
+1. Remove `~/.claude/skills/mission-control/` and `~/.claude/skills/test-discipline/`
+   (folders or symlinks).
+2. Remove `~/.claude/output-styles/concise.md`, and run `/output-style default` if it
+   was your active style.
+3. Remove the Flight Deck activation block from `~/.claude/CLAUDE.md`.
+4. If you registered the hooks: delete their scripts from `~/.claude/hooks/`, remove
+   their entries from `~/.claude/settings.json`, and delete
+   `~/.claude/.flight-deck-update-check`.
+5. Restart your session.
+
 ## Requirements
 
 - Claude Code, which provides the skills directory at `~/.claude/skills/`, the
