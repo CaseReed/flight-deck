@@ -90,7 +90,9 @@ The skill then runs its three phases:
   parallel, each with a self-contained brief.
 → **VERIFY**: every deliverable is checked with an inspector's posture (evidence
   required); what fails goes back for a targeted retry (2 loops max, the 2nd one tier
-  above), then a final report.
+  above), then a final report. The report and every deliverable follow the skill's
+  concision contract: lead with the conclusion, summary first, detail on request,
+  without trimming substance.
 
 Code lots invoke the companion **test-discipline** skill to prove the change (choose
 the proof, run the repo's named check, cite its output).
@@ -123,5 +125,5 @@ Version 1.0, English successor, July 2026. Inherits the French original's v1.3 c
 (real code routes to Sonnet minimum; reasoning effort routed per lot alongside the
 model; large deliverables written to disk, not returned inline; parallel lots use
 disjoint file scopes; mechanical checks parallelize past roughly 6 lots; final
-escalation lands on the session model) and adds the Opus-class default and the
-mission-control rename.
+escalation lands on the session model) and adds the Opus-class default, the
+mission-control rename, and a concision contract for deliverables and reports.

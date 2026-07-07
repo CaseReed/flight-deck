@@ -204,6 +204,8 @@ Stays inline for the frontier model (the only exceptions):
    - **Code lot**: invoke the `test-discipline` skill, run the repo's named check, and
      put the tail of its output in your self-check. A code deliverable with no cited
      check output is unverified.
+   In every case, the deliverable itself leads with the result and carries no preamble
+   (see Concision of deliverables and reports above).
    Why: N lots returning their raw content flood the orchestrator's context, and it is
    the VERIFY phase (the one that justifies the whole pattern) that pays the price.
 7. While the agents are running, don't redo their work yourself. Wait.
@@ -249,7 +251,8 @@ Stays inline for the frontier model (the only exceptions):
    subagent instead of applying it yourself, even when the files are skills or docs.
 10. **Final report** to the user: what was produced (with paths), what was verified
     and how, what was retried, what remains open. Never "everything looks good"
-    without pointing at the evidence.
+    without pointing at the evidence. Follow the concision contract above: lead with
+    what was produced and verified, summary first, full detail on request.
 11. **Knowledge pass at close-out.** Once the work is confirmed done, record what is
     durable and non-derivable (a decision, a gotcha, a new convention, a status that
     outlives the session) to the right scope, and prune what this work made stale. Route
@@ -330,6 +333,27 @@ Golden rules:
   you end up checking what was produced instead of what was asked for.
 → **Verification is not optional.** Skip phase 3 and the whole pattern collapses: you
   just paid less for an unchecked result.
+
+## Concision of deliverables and reports
+
+The deliverable and the final report constrain **form, not substance**. Lead with the
+conclusion or the headline result in the first sentence, never with preamble ("here is",
+"based on", a restatement of the ask).
+
+For anything longer than a few lines: a short plain-language summary first, findings as
+bullets when they are genuinely discrete, then what remains open. A short table for a 2
+to 4 way comparison, a small diagram only when the content is structural (architecture,
+flow), never decorative.
+
+**Progressive disclosure**: the short version first, the full breakdown on request.
+Nothing is dropped, only deferred.
+
+**The guard-rail** ties to the skill's own "never 'everything looks good' without
+evidence" ethos: trim words, repetition, restated context, never a fact, a risk, a
+caveat, or the evidence behind a "done" claim. If a nuance would change the user's
+decision, keep it.
+
+This shapes long or complex output, not every turn: a one-line answer stays one line.
 
 ## Prompting subagents for Fable 5
 

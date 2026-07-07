@@ -1,9 +1,10 @@
 # Flight Deck
 
-Flight Deck is a package that fixes seven default weaknesses in how Claude Code runs
+Flight Deck is a package that fixes eight default weaknesses in how Claude Code runs
 out of the box: it barely delegates, has no sense of which model tier a task deserves,
 does not calibrate how hard to think, does not resist over-engineering, tests loosely,
-forgets what it already knows, and has no cost discipline. The name is the frame, used
+forgets what it already knows, has no cost discipline, and pads its analyses and
+reports with preamble and filler. The name is the frame, used
 lightly: mission control plans and hands work to the crew at their consoles, a
 pre-flight checklist gates whether a change is actually done, and cost is fuel, not an
 afterthought.
@@ -19,6 +20,7 @@ afterthought.
 | Testing discipline | Calls it "done" on the strength of a diff | Picks the proof before writing code, runs the repository's own named check, cites the output |
 | Memory and docs | Re-derives what is already known, skips the project's own notes | Recalls persistent memory and reads local docs before planning anything substantial |
 | Cost | No sense of what a session is spending | Keeps the top tier in planning and verification only; execution goes to the cheapest tier that clears the bar |
+| Verbosity | Buries the answer under preamble and filler in analyses, reports, and explanations | Leads with the conclusion and keeps output tight, with the detail offered on request: a Concise output style across all of Claude Code, plus a concision rule inside mission-control |
 
 ## What's inside
 
@@ -36,6 +38,11 @@ afterthought.
   verification before a push, and a fanout-guard that mechanically enforces the
   model-tier calibration whether or not the skill loaded. Registration steps are in
   `hooks/HOOKS.md`.
+- **output-styles/** : an optional `Concise` output style. It makes Claude lead with the
+  answer, keep the initial response tight, and expand only on request, across all of
+  Claude Code, not only mission-control deliverables. Structural rules only, with a
+  guard-rail that defers detail rather than dropping substance. Copy it to
+  `~/.claude/output-styles/` and turn it on with `/output-style Concise`.
 
 ## Usage
 
@@ -63,9 +70,9 @@ Install the Flight Deck skill package for me from https://github.com/CaseReed/fl
 
 1. Clone the repo into a temporary directory (for example /tmp/flight-deck) and read its README.md, CLAUDE-md-activation.md, skills/, and hooks/ so you know what you are installing.
 
-2. Check for an existing install first. Look for ~/.claude/skills/mission-control/ and ~/.claude/skills/test-discipline/, and check whether ~/.claude/CLAUDE.md already has a Flight Deck activation block. If everything is already in place, tell me and stop there. Do not re-run steps or overwrite anything that is already installed.
+2. Check for an existing install first. Look for ~/.claude/skills/mission-control/ and ~/.claude/skills/test-discipline/, check whether ~/.claude/CLAUDE.md already has a Flight Deck activation block, and check whether ~/.claude/output-styles/concise.md already exists. If everything is already in place, tell me and stop there. Do not re-run steps or overwrite anything that is already installed.
 
-3. Copy the skill folders. Copy skills/mission-control/ and skills/test-discipline/ from the clone into ~/.claude/skills/. If either folder already exists there, show me a diff against the incoming version before doing anything, and ask whether to overwrite, skip, or merge. Never overwrite silently.
+3. Copy the skill folders. Copy skills/mission-control/ and skills/test-discipline/ from the clone into ~/.claude/skills/. If either folder already exists there, show me a diff against the incoming version before doing anything, and ask whether to overwrite, skip, or merge. Never overwrite silently. Also copy output-styles/concise.md into ~/.claude/output-styles/, with the same safety: if it already exists, show me a diff before overwriting.
 
 4. Update ~/.claude/CLAUDE.md. Read CLAUDE-md-activation.md from the clone. If ~/.claude/CLAUDE.md does not exist yet, show me its full proposed contents and ask before creating it. If it exists and already contains this activation block (or an equivalent one covering the same triggers and opt-outs), tell me and make no change. Otherwise, show me the exact diff you intend to apply, including where it gets appended, and wait for my explicit confirmation before writing anything.
 
@@ -73,7 +80,7 @@ Install the Flight Deck skill package for me from https://github.com/CaseReed/fl
 
 Only once I confirm: copy the chosen hook script(s) into ~/.claude/hooks/ and make each one executable with chmod +x. If settings.json already has content in the relevant section, show me the diff before writing it, otherwise just apply the change. Before reporting a hook as registered, check that jq is installed and on PATH, and warn me if it is not, since both hooks need jq to run.
 
-6. Finish with a plain summary: which files you copied, what, if anything, got appended to CLAUDE.md, and which hooks, if any, got registered. For anything I declined, say it was skipped and how to run it later. Then remove the temporary clone.
+6. Finish with a plain summary: which files you copied, what, if anything, got appended to CLAUDE.md, whether the Concise output style was copied and that it stays off until I run /output-style Concise, and which hooks, if any, got registered. For anything I declined, say it was skipped and how to run it later. Then remove the temporary clone.
 
 Do not write to CLAUDE.md or settings.json without showing me the change first and getting a yes. If the package is already installed, say so and stop instead of repeating the steps.
 ```
@@ -85,9 +92,12 @@ Do not write to CLAUDE.md or settings.json without showing me the change first a
    project-only install).
 2. Open `CLAUDE-md-activation.md`, copy the block, and paste it into your global
    `~/.claude/CLAUDE.md` (or a project `CLAUDE.md`).
-3. Optional: read `hooks/HOOKS.md` and register the hooks you want in
+3. Optional: copy `output-styles/concise.md` into `~/.claude/output-styles/`, then turn
+   it on with `/output-style Concise` for concise-by-default responses across Claude
+   Code. It stays off until you activate it.
+4. Optional: read `hooks/HOOKS.md` and register the hooks you want in
    `~/.claude/settings.json`.
-4. Restart your session.
+5. Restart your session.
 
 ## Requirements
 
