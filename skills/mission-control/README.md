@@ -85,14 +85,16 @@ or "orchestrate this task", "plan-delegate-verify".
 The skill then runs its three phases:
 → **PLAN**: split into independent lots, with verifiable done criteria written BEFORE
   any launch, and a model assigned to each lot (Haiku for mechanical work, Sonnet by
-  default, Opus for lots that need judgment).
+  default, Opus for lots that need judgment). Full mechanics: SKILL.md, "Phase 1: PLAN".
 → **DELEGATE**: one subagent per lot, on the model set by the plan, all launched in
-  parallel, each with a self-contained brief.
+  parallel, each with a self-contained brief. Full mechanics: SKILL.md, "Phase 2:
+  DELEGATE".
 → **VERIFY**: every deliverable is checked with an inspector's posture (evidence
-  required); what fails goes back for a targeted retry (2 loops max, the 2nd one tier
-  above), then a final report. The report and every deliverable follow the skill's
-  concision contract: lead with the conclusion, summary first, detail on request,
-  without trimming substance.
+  required); what fails goes back for a targeted retry, then a final report. Retry
+  caps and tier escalation live in SKILL.md, "Phase 3: VERIFY". The report and every
+  deliverable follow the skill's concision contract (SKILL.md, "Concision of
+  deliverables and reports"): lead with the conclusion, summary first, detail on
+  request, without trimming substance.
 
 Code lots invoke the companion **test-discipline** skill to prove the change (choose
 the proof, run the repo's named check, cite its output).
@@ -121,9 +123,4 @@ working language (for example a French user's "sans mission control").
 → Works with any primary model; the pattern pays off more the more capable (and
   expensive) your session model is.
 
-Version 1.0, English successor, July 2026. Inherits the French original's v1.3 changes
-(real code routes to Sonnet minimum; reasoning effort routed per lot alongside the
-model; large deliverables written to disk, not returned inline; parallel lots use
-disjoint file scopes; mechanical checks parallelize past roughly 6 lots; final
-escalation lands on the session model) and adds the Opus-class default, the
-mission-control rename, and a concision contract for deliverables and reports.
+Version: see the VERSION file. Full changes: see the package CHANGELOG.md.

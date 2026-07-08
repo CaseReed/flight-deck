@@ -63,7 +63,8 @@ mission control", "no mission control", or "do it yourself".
 
 Routing always points down to a cheaper tier, with one narrow, supervised exception
 for a single high-value lot going to a more expensive model; see "Supervised
-up-delegation" in `skills/mission-control/SKILL.md`.
+up-delegation" in `skills/mission-control/SKILL.md` (full limits in
+`skills/mission-control/references/advanced-orchestration.md`).
 
 ## Install
 

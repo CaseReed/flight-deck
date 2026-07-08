@@ -1,390 +1,217 @@
 ---
 name: mission-control
 description: >-
-  Plan with the session's frontier model, delegate execution to per-lot
-  calibrated subagents, then verify adversarially before closing out.
-  Frontier-model quality without paying frontier price on every line. On a
-  Claude Fable 5 or Opus session this is the default mode for any substantial
-  multi-lot task (folder audit, multi-file migration, series of deliverables,
-  multi-source analysis) once the activation rule from CLAUDE-md-activation.md
-  is added to the global CLAUDE.md. A single-pass simple task (a Jira ticket, a draft, a
-  web search, a reformat) never runs inline on the frontier model, it goes out
-  as simple delegation to one sonnet or haiku subagent. Triggers: "mission
-  control", "orchestrate this task", "plan-delegate-verify". Opt out with
-  "without mission control", "no mission control", "do it yourself".
+  Plan with the session model, delegate execution to per-lot calibrated
+  subagents, then verify adversarially: frontier quality without frontier price
+  on every line. Default mode on frontier sessions for substantial multi-lot
+  tasks; a single-pass task goes out as simple delegation to one sonnet or haiku
+  subagent, never inline on the frontier model. Triggers: "mission control",
+  "orchestrate this task", "plan-delegate-verify". Opt out with "without mission
+  control", "no mission control", "do it yourself", also recognized in the
+  user's working language (e.g. a French user's "sans mission control").
 when_to_use: >-
-  Applies on Fable 5 and Opus-class frontier sessions to any substantive
-  multi-lot task without being asked, unless opted out. Trigger and opt-out
-  phrases are also recognized in the user's working language (for example a
-  French user's "sans mission control"). On non-frontier sessions (Sonnet,
-  Haiku) it stays opt-in through the explicit triggers only.
+  Default on frontier sessions for any substantial multi-lot task unless opted
+  out; opt-in via the triggers on non-frontier sessions. Phrases recognized in
+  the user's working language.
 metadata:
   author: Julien Tavernier
-  origin: "English successor of the French tour-de-controle skill (2026-07-02)"
 ---
 
 # mission-control: plan, delegate, verify
 
-The principle: **the frontier model is too valuable to execute, and too good not to
-verify.** On a large task, you don't ask it to do everything, you ask it for the two
-things where it beats everything else: **the plan** and **the quality control**.
-Execution goes to smaller, faster, cheaper subagents that work in parallel.
+**The frontier model is too valuable to execute, and too good not to verify.** On a
+large task you ask it for the two things where it beats everything else, **the plan** and
+**the quality control**; execution goes to smaller, faster, cheaper subagents in parallel.
 
-```
-         PLAN                     DELEGATE                   VERIFY
-   (frontier model, once)   (small agents, in //)     (frontier model, once)
-   ┌──────────────────┐     ┌──────┐ ┌──────┐         ┌──────────────────┐
-   │ full spec        │ →   │lot 1 │ │lot 2 │ ...  →  │ check against    │
-   │ + "done" criteria│     └──────┘ └──────┘         │ the plan's       │
-   │ per lot          │     each lot = one            │ criteria, lot    │
-   └──────────────────┘     autonomous agent          │ by lot           │
-                                                      └──────────────────┘
-                                                        ↳ what fails goes
-                                                          back as a
-                                                          targeted lot
-```
+**Flow:** PLAN (session model, once) writes a full spec plus done criteria per lot →
+DELEGATE one calibrated subagent per lot, in parallel → VERIFY (session model) each
+deliverable against its criteria; any lot that fails loops back as a targeted lot. Why this
+pattern works, the cost model, and the doctrine's history: read `references/rationale.md`.
 
-Why this works (and why now):
-→ Frontier models like **Claude Fable 5** (and Opus-class models generally) have become
-  excellent at long-horizon planning and verification, but every turn is expensive and
-  can run several minutes. Using them to execute every subtask means paying
-  mission-control prices to push baggage carts.
-→ A small model with a **precise spec** delivers near-equivalent work on a well-scoped
-  lot. All the quality lives in the scoping and the review, not in the executor's raw
-  muscle.
-→ Verification by an **agent with a fresh context** beats self-critique: the executor
-  can't see its own blind spots.
+## Hard rules (read before anything else)
 
-## When to use it
+- **Never more lots than necessary.** 3 well-specified big lots beat 10 crumbs.
+- **Done criteria are written BEFORE launching the agents**, 2 to 4 verifiable per lot,
+  never after; otherwise you check what was produced, not what was asked.
+- **Real code routes to `sonnet` minimum, never `haiku` in write mode.** A lot that
+  writes or edits code meant to run is `sonnet` even when the brief sounds mechanical.
+- **Two parallel WRITE lots never share a file.** Sequence them, or isolate with
+  `isolation: worktree` on the Agent call.
+- **Verification is not optional.** Skip it and the pattern collapses: you just paid
+  less for an unchecked result.
 
-- **Automatically on a Fable 5 or Opus-class session, once you add the activation rule
-  from `CLAUDE-md-activation.md` (shipped at the package root) to your global
-  CLAUDE.md**: that rule is what makes this the default execution mode on every
-  eligible task, mandates the start-of-session announcement, and gives the opt-out on
-  request ("without mission control", or the equivalent in the user's working
-  language). Once that block is pasted, Fable 5 and Opus sit at the same default
-  level, this is not a Fable-only rule with Opus as a soft afterthought: the
-  plan/delegate/verify logic is judged better engineering in general, not only a cost
-  workaround forced by Fable 5's price.
-- A task with **several independent lots**: auditing a folder, migrating files,
-  producing a series of documents, multi-source analysis, a section-by-section rewrite.
-- The user wants to **cap cost** while keeping frontier-model quality where it matters.
-- The task has **verifiable success criteria** (or can be given some).
+## Mode selection
 
-## When NOT to orchestrate in 3 phases (but still delegate)
+Pick the mode before doing anything. On a frontier session the session model does only
+four things itself: plan, orchestrate, verify, decide. Everything else is execution and
+gets delegated, even simple single-pass work.
 
-- A short or sequential task that a single pass settles, the 3-phase orchestration
-  would cost more than the work itself. **On a frontier session model, "a single pass"
-  does NOT mean "the frontier model executes it inline"**: the task goes out as
-  **simple delegation** (next section), one calibrated subagent. The frontier model
-  writes the brief and checks the result, that's it.
-- A creative task that has to stay a single piece (a text, a design): splitting it
-  breaks coherence. It goes out as simple delegation to ONE agent (sonnet, opus if it
-  is publication-grade).
-- Rapid-fire micro-tasks: a subagent starts from zero (fresh context to rebuild),
-  delegation only pays off on volume lots, not on one-minute touch-ups.
+- **Full orchestration (the 3 phases below):** a task with several independent lots,
+  auditing a folder, migrating files, a series of deliverables, multi-source analysis, a
+  section-by-section rewrite. Needs verifiable success criteria, or lots you can give some.
+- **Simple delegation (single pass):** a short, sequential, or single-piece task one pass
+  settles, a Jira ticket, a draft, a web or documentation search, a reformat, a creative
+  text that must stay coherent. It does NOT run inline on the frontier model: the session
+  model writes one self-contained brief, fires ONE Agent call at the model the routing grid
+  sets (`sonnet` default; `haiku` for pure non-code mechanics), then checks the result once
+  against the criteria; on failure, fix at most one trivial line yourself, anything larger
+  goes back once with the exact edit list, single loop. A routine single-pass task run
+  inline on the frontier model is the mistake this mode corrects.
+- **Inline (the only frontier-model exceptions):** conversational turns (answering,
+  explaining, analyzing, giving an opinion); ONE trivial-line micro fix on context already
+  loaded; and what a subagent cannot do (a user-facing decision, a tool unavailable to
+  subagents, a call that commits the rest of the session).
 
-## Simple delegation, the single-pass mode
+## Phase 1: PLAN (session model, maximum effort)
 
-**On a frontier session model, it does only four things itself: plan, orchestrate,
-verify, decide.** The official docs position it exactly there: "built for the most
-demanding reasoning and long-horizon agentic work"
-(https://platform.claude.com/docs/en/about-claude/models/introducing-claude-fable-5-and-claude-mythos-5),
-"your hardest and longest-running tasks", "hand it ambiguous problems: root-cause
-investigations, outage debugging, and architecture decisions"
-(https://code.claude.com/docs/en/model-config), and it is NEVER the default, always
-opt-in. On the other side: Sonnet is "daily coding tasks", "best combination of speed
-and intelligence"; Haiku is "sub-agent tasks", the most economical tier. The frontier
-tiers cost several times more per token than Sonnet, and Sonnet several times more than
-Haiku, so paying the top tier to execute every subtask is the waste this pattern
-removes. The payoff scales with how much more expensive the session model is than the
-executor tier. The "big model plans, small model executes" pattern already exists
-officially through the `opusplan` alias (Opus plans, Sonnet executes); this skill is
-its extension to Fable. Everything else is EXECUTION. Even simple, even single-pass,
-it gets delegated. Creating a Jira ticket or running a web search with Fable 5 means
-running a mission-control-priced baggage cart: a routine single-pass task run inline
-on the frontier model is exactly the mistake this section corrects.
+1. **Recall first.** Before splitting anything, sweep what the project already knows: the
+   session's persistent memory (the MEMORY.md index and any entry it points to) and the
+   project's docs (CLAUDE.md, README, design notes) for prior decisions, conventions, and
+   gotchas bearing on this task. Cite in the plan what applies, or state "nothing relevant
+   found". A plan that ignores a recorded decision re-litigates settled ground.
+2. **Full spec first.** If the request is vague, ask ALL your questions in one turn (goal,
+   scope, constraints, output format, examples of "good"). A vague request produces vague
+   lots and lost subagents.
+3. **Split into independent lots.** Each lot must be executable alone, without seeing the
+   others. If two lots depend on each other, merge or sequence them. Independence is
+   logical AND physical: two parallel WRITE lots never share a file (see the hard rules).
+4. **Decide the routing at planning time**, never at launch: the execution tier and
+   reasoning effort from the routing grid, with a 3-5 word justification ("pure mechanics",
+   "nuanced writing"). Write the lot's done criteria now: 2 to 4 verifiable ones (not "good
+   quality" but "contains the exact figures from the source table", "under 300 words", "0
+   dead links"). Any lot that writes code meant to run MUST carry a test-evidence criterion
+   authored via the test-discipline skill (a named check that passes, its output cited); if
+   test-discipline is not installed, name the repo's own check inline in the criterion
+   instead and say the skill was absent.
+5. **Distill the intent, don't relay the words.** Apply the colleague test: would a
+   stranger with none of this conversation know exactly what to do and where to stop? If
+   yes, pass the request as-is. If not, close that gap in the brief, and cut scope to
+   YAGNI, because an over-briefed subagent over-builds. Confirm the plan with the user if
+   the task is heavy or ambiguous; otherwise proceed.
 
-How it runs (lightweight, not the full 3 phases):
-1. The frontier model writes ONE self-contained brief: mission, source material copied
-   in full (the subagent sees nothing of the conversation), done criteria, expected
-   output format.
-2. ONE Agent call with the model set by the routing grid: `sonnet` by default (Jira
-   creation/editing, Slack/email drafts, short writing, small edits, **web and
-   documentation research**: official docs, fact-checking, library due diligence),
-   `haiku` if it is pure mechanical work outside code (extract, count, reformat).
-3. The frontier model checks the result against the criteria (one read, not a
-   counter-investigation), fixes at most one trivial line itself, anything larger
-   goes back as a retry with the exact edit list, single loop.
+## Phase 2: DELEGATE (calibrated subagents, in parallel)
 
-Stays inline for the frontier model (the only exceptions):
-- **Conversational** turns: answering, explaining, analyzing in the thread, giving an
-  opinion.
-- A **micro fix**: one trivial line on context already loaded in the conversation, no
-  more. A series of edits, or editing a skill, doc, or config file, is execution and
-  gets delegated with the exact edit list.
-- What the subagent **cannot do**: a user-facing decision, an action on a tool
-  unavailable to subagents, a call that commits the rest of the session.
+6. **One pinned Agent call per lot, all in the same turn** so they run in parallel, at any
+   lot count. Set `model:` explicitly on every call (`"haiku"` / `"sonnet"` / `"opus"`)
+   even when an agent definition's frontmatter pins it: the fanout guard reads only the
+   call parameter and denies the rest. If this environment exposes a Workflow tool and the
+   run needs structured returns, lot-to-check chaining, or a token budget, read
+   `references/advanced-orchestration.md` first; on a Fable 5 session the fanout guard
+   denies Workflow calls unless you pass the `FABLE_OK` token, which you never add without
+   the user's explicit approval for that run.
+7. **Each brief is self-contained**, the subagent sees NOTHING of this conversation. Use
+   this template:
 
-## Workflow (3 phases)
+   ```
+   Mission: <one sentence, action verb>.
+   Context and why: <inline what the subagent needs; it has none of this conversation>.
+   Material: <exact paths, data, links>.
+   Done criteria: <2-4 verifiable; a code lot carries a test-discipline evidence
+     criterion with cited output>.
+   Output contract: <small deliverable: your final response IS the deliverable, return
+     the raw content, no summary. File deliverable: WRITE to <fixed path>, return only
+     that path plus your self-check against each criterion>. Lead with the result, no
+     preamble.
+   Model + effort: <tier + effort + 3-5 word justification>.
+   ```
+   A code lot's brief also says: invoke the test-discipline skill, run the repo's named
+   check, quote the tail of its output. A code deliverable with no cited check is
+   unverified. Keep briefs lean: N lots returning raw content flood the VERIFY context.
+8. While the agents run, don't redo their work. Wait.
 
-### Phase 1: PLAN (you, the frontier model, maximum effort)
+## Phase 3: VERIFY (session model, inspector hat on)
 
-0. **RECALL first.** Before splitting anything, sweep what the project already knows:
-   the session's persistent memory (the MEMORY.md index and any entry it points to) and
-   the project's own docs (CLAUDE.md, README, design notes) for prior decisions,
-   conventions, and gotchas bearing on this task. Cite in the plan what applies, or
-   state 'nothing relevant found'. A plan that ignores a decision already recorded
-   re-litigates settled ground or repeats a known mistake.
-1. **Full spec first.** If the request is vague, ask ALL your questions in a single
-   turn (goal, scope, constraints, output format, examples of "good"). A plan built on
-   a vague request produces vague lots, and lost subagents.
-2. **Split into independent lots.** Each lot must be executable alone, without seeing
-   the others. If two lots depend on each other, merge them or sequence them.
-   Independence is logical AND physical: two lots that WRITE never share a file (two
-   parallel agents on the same file silently clobber each other). If overlap is
-   unavoidable, sequence the lots or isolate them with `isolation: worktree` on the
-   Agent tool.
-3. **For each lot, write 4 things** in a plan shown to the user:
-   - **Mission**: one sentence, action verb.
-   - **Material**: the exact files, data, or links the lot needs, plus the exact
-     output path if the deliverable is a file.
-   - **Done criteria**: 2 to 4 **verifiable** criteria (not "good quality", but
-     "contains the exact figures from the source table", "under 300 words", "0 dead
-     links"). For any lot that writes code meant to run, at least one done criterion
-     MUST be a test-evidence criterion authored via the test-discipline skill (a named
-     check that passes, its output cited), never a subjective "works".
-   - **Model + effort**: the execution tier AND the reasoning level chosen from the
-     routing grid (see Defaults below), with a 3-5 word justification ("pure
-     mechanics", "nuanced writing"...). Routing is decided AT PLANNING TIME, never
-     improvised at launch.
-3b. **Distill the intent, don't relay the words.** The user's request is raw material,
-    not the brief. Before a lot is briefed, restate its objective in the subagent's
-    terms: inline the context the subagent cannot see (it has none of this
-    conversation), give the *why* behind the ask (a subagent that knows the goal
-    generalizes; one that only has the words guesses), and **cut the scope to YAGNI**,
-    dropping every ask not needed to hit the done criteria, because a subagent briefed
-    to over-deliver over-builds (extra layers, defensive code, tests for cases that
-    cannot happen). This is not a rewrite ritual: if the request is already objective +
-    scope + stop-condition, pass it as-is. The trigger is the colleague test, would a
-    stranger with none of this conversation know exactly what to do and when to stop?
-    If not, that gap is what you distill, nothing more.
-4. Confirm the plan with the user if the task is heavy or ambiguous. Otherwise,
-   proceed.
+9. **Check each deliverable against its done criteria, actively trying to reject it.** For
+   each criterion ask "what would prove this failed?" and verify against the sources:
+   re-read the produced file, cross-check the figures, test the links. A deliverable that
+   "looks fine" without evidence is unverified. Past roughly 6 lots, parallelize the
+   mechanical checks: delegate the mechanically verifiable criteria (counts, links,
+   formats, tests) to fresh-context verifier subagents (`haiku`/`sonnet`, low effort), one
+   per lot, in parallel; keep the judgment criteria and the final call for yourself. A
+   fresh verifier beats self-critique, including yours.
+10. **Check for over-delivery, not just under-delivery.** Done criteria measure presence
+    ("it does X"), never restraint ("it does ONLY X"), so a lot can pass every criterion
+    and still be over-engineered. For each deliverable, hunt for what the criteria did not
+    require: an abstraction with a single caller, a config knob nobody asked for, defensive
+    code for inputs that cannot occur, a test for a case that cannot happen. Flag it and
+    trim it. This verify pass is the only place the pattern catches it.
+11. **What fails loops back as a targeted lot.** Resume the executing agent via SendMessage
+    if the environment allows (its context is intact), otherwise a new subagent; in both
+    cases hand it the faulty deliverable, the failed criterion, and the expected fix.
+    Maximum **2 retry loops**; if the 1st retry fails on the same model, the 2nd launches
+    one tier up (`haiku`→`sonnet`→`opus`, the last rung being you taking the lot over).
+    Before escalating a lot that failed twice, check the authoritative source (official
+    docs, the library's own source or spec, the actual error), and if that does not settle
+    it, run a targeted web search; a repeated failure is often missing information, not an
+    under-calibrated lot, and no tier upgrade fixes a wrong assumption. Beyond 2 loops,
+    take the lot over yourself or escalate the blocker to the user. **Micro-fix boundary:**
+    one trivial line (delete or replace) gets fixed during the check and noted. Several
+    corrections in the same pass are a batch, and a batch is execution: hand the full edit
+    list to one sonnet subagent instead of applying it yourself, even when the files are
+    skills or docs.
+12. **Final report:** what was produced (with paths), what was verified and how, what was
+    retried, what remains open. Never "everything looks good" without pointing at the
+    evidence. Lead with what was produced and verified; see Concision below.
+13. **Knowledge pass at close-out, per surface and verified.** Once the work is confirmed
+    done, sweep three surfaces one at a time, actually opening each rather than concluding
+    "already covered" from memory: (a) persistent memory (the MEMORY.md index and touched
+    entries), (b) CLAUDE.md, the project's and the global one, (c) the project's own docs
+    (README, design notes). On each, record what is durable and non-derivable that this
+    work established (a decision, a gotcha, a convention, a lasting status) and prune what
+    it made stale, routing by scope: a project-specific fact to that project's memory,
+    CLAUDE.md, or docs; a cross-project preference or doctrine to the global memory or
+    CLAUDE.md. A skip must be a checked conclusion (surface opened, it holds), not an
+    assumption. Report the outcome per surface ("memory: added X; project CLAUDE.md:
+    nothing new; docs: nothing new"). The pass is never optional.
 
-### Phase 2: DELEGATE (calibrated subagents, in parallel)
+## Routing grid
 
-5. **Pick the orchestration tool for the size of the run**:
-   - **2-3 lots**: the Agent/Task tool, one subagent per lot with the **model assigned
-     in the plan** (`model: "haiku"` / `"sonnet"` / `"opus"`), all launched **in the
-     same turn** so they run in parallel.
-   - **4+ lots, or a need for structured returns, lot-to-check chaining, or a cost
-     ceiling**: the Workflow tool. One `agent()` per lot with the plan's `model` AND
-     `effort`; a JSON `schema` on each agent to force a structured return
-     ({deliverable_path, self_check_per_criterion}) validated without parsing;
-     `pipeline()` to chain execution then mechanical check lot by lot WITHOUT a barrier
-     (a finished lot gets checked while the others are still running); `budget` when
-     the user has set a token envelope; `phase()` so the user sees PLAN / DELEGATE /
-     VERIFY progress. Same routing grid, applied natively. **On a Fable 5 session with
-     the fan-out guard hook active, the guard denies Workflow calls outright**: once
-     the user has explicitly approved running the workflow on Fable 5, include the
-     token `FABLE_OK` in the workflow's args so the guard lets it through. **Fallback**:
-     if this environment exposes no Workflow tool, and no SendMessage or
-     resumeFromRunId either, the 2-3 lots rule above (parallel Agent calls) also
-     applies to 4+ lots: just launch more subagents in the same turn instead.
-6. **Each subagent's prompt is self-contained**: it sees NOTHING of the conversation.
-   Copy into it the mission, the material (full paths), the done criteria, and the
-   expected output format. End with THE closing instruction that matches the lot:
-   - **Small deliverable** (fits in under a page, not meant to be a file): "Your final
-     response IS the deliverable, return the raw content, not a summary of what you
-     did."
-   - **Large deliverable or a file**: "WRITE the deliverable to disk at the path fixed
-     by the plan; your final response contains only that path plus your self-check
-     against each done criterion."
-   - **Code lot**: invoke the `test-discipline` skill, run the repo's named check, and
-     put the tail of its output in your self-check. A code deliverable with no cited
-     check output is unverified.
-   In every case, the deliverable itself leads with the result and carries no preamble
-   (see Concision of deliverables and reports above).
-   Why: N lots returning their raw content flood the orchestrator's context, and it is
-   the VERIFY phase (the one that justifies the whole pattern) that pays the price.
-7. While the agents are running, don't redo their work yourself. Wait.
-
-### Phase 3: VERIFY (you, the frontier model, inspector hat on)
-
-8. **Check each deliverable against its done criteria, actively trying to reject it.**
-   For each criterion, ask: "what would prove this failed?" and go verify against the
-   sources (re-read the produced file, cross-check the figures, test the links). A
-   deliverable that "looks fine" without evidence is unverified. **Past roughly 6
-   lots, parallelize the mechanical checks**: delegate the mechanically verifiable
-   criteria (counts, links, formats, tests that pass) to fresh-context verifier
-   subagents (`haiku`/`sonnet`, low effort), one per lot, launched in parallel. Keep
-   the final call and the judgment criteria for yourself. This is the skill's own
-   argument turned on itself: a fresh verifier beats self-critique, including yours.
-8b. **Check for over-delivery, not just under-delivery.** A lot can pass every done
-    criterion and still be over-engineered, because done criteria measure presence ('it
-    does X'), never restraint ('it does ONLY X'). For each deliverable ask: is there
-    anything here the criteria did not require, an abstraction with a single caller, a
-    config knob nobody asked for, defensive code for inputs that cannot occur, a test for
-    a case that cannot happen? Flag it and trim it. Over-engineering is a defect even when
-    the feature works, and this verify pass is the only place the pattern catches it.
-9. **What fails goes back as a targeted lot**: resume the executing agent via
-   SendMessage if the environment allows it (its context is intact; on a Workflow run,
-   relaunch with `resumeFromRunId`, only the changed lots re-run, the rest comes from
-   cache), otherwise a new subagent, in both cases handing it the faulty deliverable,
-   the failed criterion, and the expected fix. Maximum **2 retry loops**, beyond that,
-   take the lot back yourself or escalate the blocker to the user.
-   **Tier escalation**: if the 1st retry fails on the same model, the 2nd launches one
-   tier up (haiku to sonnet to opus, the last rung being you, the session model,
-   taking the lot over directly). A repeated failure is rarely a briefing problem, it
-   is an under-calibrated lot, and one tier up costs less than a 3rd loop.
-   **Check the source before escalating**: when stuck (real uncertainty, or a lot that
-   failed twice), check the authoritative source before guessing or escalating: the
-   official docs for the problem, the library's own source or spec, the actual error.
-   If the official source does not settle it, run a targeted web search. A repeated
-   failure is often missing information, not an under-calibrated lot, and no tier
-   upgrade fixes a wrong assumption.
-   **Micro-fix exception**: a trivial, mechanical deviation (1 line or less to delete
-   or replace) gets fixed directly during the check and noted in the report, a full
-   loop for that would be wasteful. Several corrections found in the same verify pass
-   are a batch, and a batch is execution: hand the full edit list to one sonnet
-   subagent instead of applying it yourself, even when the files are skills or docs.
-10. **Final report** to the user: what was produced (with paths), what was verified
-    and how, what was retried, what remains open. Never "everything looks good"
-    without pointing at the evidence. Follow the concision contract above: lead with
-    what was produced and verified, summary first, full detail on request.
-11. **Knowledge pass at close-out, per surface and verified.** Once the work is
-    confirmed done, sweep three surfaces **one at a time, actually opening each**
-    rather than concluding "already covered" from memory: (a) **persistent memory**
-    (the MEMORY.md index and the entries this work touched), (b) **CLAUDE.md**, the
-    project's and the global one, (c) the **project's own internal docs** (README,
-    design notes, per-subsystem docs). Handling one surface is never grounds to skip
-    another, each is checked on its own. On each, record what is durable and
-    non-derivable that this work established (a decision, a gotcha, a new convention, a
-    status that outlives the session) and prune what it made stale. Route by scope: a
-    project-specific fact to that project's memory, CLAUDE.md, or docs; a cross-project
-    preference or doctrine to the global memory or CLAUDE.md. Skip only what the code,
-    the git history, or an existing doc already records, and a skip must be a
-    **checked** conclusion (surface opened, it holds), not an assumption. Report the
-    outcome per surface ("memory: added X; project CLAUDE.md: nothing new; docs:
-    nothing new") so the pass is auditable. The pass is never optional, and "partly
-    done" is not done.
-
-## Defaults, the routing grid
-
-**Routing is relative to your session model, not to fixed names.** The session model
-orchestrates (plans and verifies); execution always routes to the tiers BELOW it. The
-grid below assumes a top-tier session, so shift the names down to match where yours sits:
-- **Session = Fable 5**: orchestrate with Fable; code and nuanced lots to Opus or Sonnet;
-  mechanical lots to Haiku.
-- **Session = Opus**: orchestrate with Opus; code lots to Sonnet; mechanical lots to Haiku.
-- **Session = Sonnet**: orchestrate with Sonnet; mechanical lots to Haiku; code stays on
-  Sonnet. Less headroom, so the pattern pays off less, which is expected.
-Rule: never delegate a lot to a model more expensive than your session model. The
-orchestrator is the ceiling, execution lives under it. Read the table's tier names
-relative to your own session, not as absolutes.
+**Routing is relative to your session model**, not to fixed names. The session model
+orchestrates; execution routes to the tiers BELOW it. Never delegate a lot to a model more
+expensive than your session model, the orchestrator is the ceiling.
 
 | Role | Model | Effort | When |
 |---|---|---|---|
-| Planning + verification | the session model (ideally Fable 5 / Opus) | high (xhigh to verify a critical lot) | Always, this is where intelligence pays off |
-| Mechanical execution | `haiku` | low | Zero judgment required, outside code: extract, list, count, reformat, inventory |
-| Standard execution (**default**) | `sonnet` | medium (high for real code or tight criteria) | Analysis, synthesis, structured writing, web/documentation research, and ANY lot touching real code, 90% of the quality at a fraction of the cost |
-| Complex execution | `opus` | high (xhigh for hard code) | Nuanced judgment, publication-grade writing, multi-step reasoning WITHIN the lot, ambiguous or contradictory material |
+| Planning + verification | the session model | high (xhigh for a critical lot) | Always, where intelligence pays off |
+| Mechanical execution | `haiku` | low | Zero judgment, outside code: extract, list, count, reformat |
+| Standard execution (**default**) | `sonnet` | medium (high for real code or tight criteria) | Analysis, synthesis, structured writing, web/documentation research, ANY lot touching real code |
+| Complex execution | `opus` | high (xhigh for hard code) | Nuanced judgment, publication-grade writing, multi-step reasoning within the lot |
 
-Routing rules:
-→ **When torn between two tiers**, pick the higher tier if the lot is expensive to
-  redo or sits on the critical path, the lower one otherwise. A retry costs more than
-  the price gap between two tiers.
-→ **`opus` stays the exception, not the rule.** If most lots need `opus`, the split is
-  bad (lots too big, too ambiguous), re-split, or accept the task isn't a fit for
-  delegation.
-→ **When in doubt, let the done criteria decide**: a lot OUTSIDE CODE whose criteria
-  are purely mechanical ("exact count", "exhaustive list") never needs more than
-  `haiku`, whatever the size of the material. On code, this rule yields to the next
-  one: mechanical criteria ("tests pass", "0 tsc errors") never pull a code lot below
-  `sonnet`.
-→ **Real code routes to `sonnet` minimum, never `haiku`.** As soon as a lot writes or
-  edits code meant to run (source files, tests, scripts, executable config), it is
-  `sonnet` even if the brief sounds mechanical. A "trivial" rename breaks an import. A
-  "dumb" migration misses an edge case. The retry costs more than the tier gap. `haiku`
-  stays acceptable on code only in READ mode (inventorying usages, counting
-  occurrences), never in write mode.
-→ **Effort is set wherever the environment exposes it**: the `effort` parameter on
-  Workflow subagents, or an agent definition's frontmatter (`.claude/agents/*.md`). If
-  the Agent tool in use doesn't expose effort per call, the Model column alone carries
-  the routing, don't improvise a workaround.
-→ **Effort is the 2nd cost lever after the tier.** Every notch adds reasoning tokens
-  and latency. `low` on mechanical lots is the pattern's safest saving. `xhigh` is
-  reserved for two cases: hard code on `opus`, and your own verification of a critical
-  lot. Raising effort never rescues a badly specified lot.
+- **When torn between two tiers**, pick the higher if the lot is expensive to redo or on
+  the critical path, the lower otherwise. A retry costs more than the tier gap.
+- **`opus` stays the exception.** If most lots need `opus`, the split is bad, re-split.
+- **Let the done criteria decide:** a lot OUTSIDE code with purely mechanical criteria
+  ("exact count", "exhaustive list") never needs more than `haiku`. On code this yields:
+  mechanical criteria ("tests pass", "0 tsc errors") never pull a code lot below `sonnet`.
+- **Effort** is set where the environment exposes it (the `effort` parameter, or an agent
+  definition's frontmatter); if the Agent tool in use exposes no per-call effort, the Model
+  column alone carries the routing, don't improvise a workaround. It is the 2nd cost lever
+  after the tier: `low` on mechanical lots is the safest saving; `xhigh` only for hard code
+  on `opus` or your own verification of a critical lot. Raising effort never rescues a
+  badly specified lot.
 
-### Supervised up-delegation (the one exception)
-
-The rule above always points down: never a model more expensive than the session's.
-The one narrow exception: a session on a lower or equal tier may, deliberately and
-occasionally, delegate a single high-value lot (a fine-grained audit, a root-cause
-dig) to a more expensive model, for example Fable 5, under hard limits:
-→ **Scope is narrow and explicit**: one lot, named precisely, never "the rest of the
-  task while you're at it."
-→ **`effort` is capped** at what that lot actually needs, not left at the up-delegated
-  model's own default.
-→ **Assessment-only when the lot is an audit**: it reports findings, it does not
-  modify anything; a fix, if needed, comes back as a separate, normally-routed lot.
-→ **The run is watched with a cutoff**: track a proxy for runaway cost, such as
-  transcript size, and stop the run if it grows well past what the lot's scope
-  justifies.
-Up-tiering is a supervised exception you reach for on purpose, never a default you
-fall into.
-
-Golden rules:
-→ **Never more lots than necessary.** 3 well-specified big lots beat 10 crumbs.
-→ **Done criteria are written BEFORE launching the agents**, never after, otherwise
-  you end up checking what was produced instead of what was asked for.
-→ **Verification is not optional.** Skip phase 3 and the whole pattern collapses: you
-  just paid less for an unchecked result.
+**Supervised up-delegation (the one exception):** a session on a lower or equal tier may
+occasionally delegate ONE named high-value lot to a more expensive model under hard limits:
+scope narrow and explicit, `effort` capped at what the lot needs, assessment-only for an
+audit (it reports, it modifies nothing), and the run watched with a cutoff on a
+runaway-cost proxy such as transcript size. Before up-delegating a lot: read
+`references/advanced-orchestration.md` first.
 
 ## Concision of deliverables and reports
 
-The deliverable and the final report constrain **form, not substance**. Lead with the
-conclusion or the headline result in the first sentence, never with preamble ("here is",
-"based on", a restatement of the ask).
+Form, not substance. Lead with the conclusion or headline result in the first sentence,
+never with preamble. For anything longer than a few lines: a short plain-language summary
+first, discrete findings as bullets, then what remains open; progressive disclosure, the
+short version first and the full breakdown on request, nothing dropped only deferred. Trim
+words, repetition, and restated context, never a fact, a risk, a caveat, or the evidence
+behind a "done" claim. A one-line answer stays one line.
 
-For anything longer than a few lines: a short plain-language summary first, findings as
-bullets when they are genuinely discrete, then what remains open. A short table for a 2
-to 4 way comparison, a small diagram only when the content is structural (architecture,
-flow), never decorative.
+## Prompting a frontier subagent
 
-**Progressive disclosure**: the short version first, the full breakdown on request.
-Nothing is dropped, only deferred.
-
-**The guard-rail** ties to the skill's own "never 'everything looks good' without
-evidence" ethos: trim words, repetition, restated context, never a fact, a risk, a
-caveat, or the evidence behind a "done" claim. If a nuance would change the user's
-decision, keep it.
-
-This shapes long or complex output, not every turn: a one-line answer stays one line.
-
-## Prompting subagents for Fable 5
-
-When a lot is routed to Fable 5, whether it is the orchestrating session itself or a
-lot up-delegated under the exception above, brief it like this:
-
-- **Set `effort` per lot explicitly.** `medium` is the default for routine analysis or
-  writing; reserve `high` for a lot where detection quality is genuinely critical (a
-  security-sensitive review, a hard root-cause dig). Don't reach for `high` by reflex,
-  Fable 5 at `medium` often already outperforms older models running at their top
-  setting.
-- **Keep briefs self-contained.** The subagent sees none of this conversation: inline
-  the material, the done criteria, and the *why*, not just the words of the request.
-- **One instruction beats an enumeration.** Fable 5 follows a short, clear principle
-  well; don't try to list every case it should or shouldn't handle, state the intent
-  once and trust it to generalize.
-- **On a long-running lot, anchor progress claims in tool results.** Ask it to report
-  only what it can point to evidence for from this session, and to say plainly when
-  something is not yet verified, rather than asserting a status from memory.
-- **Never ask a Fable 5 subagent to echo, transcribe, or explain its internal reasoning
-  in its response text.** Prompts like "show your reasoning step by step in your
-  answer" risk tripping the `reasoning_extraction` safety classifier, which can trigger
-  a refusal and a fallback to Opus for that call (documented in Anthropic's "Prompting
-  Claude Fable 5" guide: platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5).
-  Ask for the conclusion and the evidence behind it, never a replay of how the model got there.
+When a lot runs on a frontier model (the orchestrating session, or an up-delegated lot):
+set `effort` per lot explicitly (`medium` for routine work, `high` only where detection
+quality is genuinely critical), state the intent once rather than enumerating cases, and
+**never ask it to echo, transcribe, or explain its internal reasoning in its response**
+(it risks a safety-classifier refusal); ask for the conclusion and the evidence, not a
+replay of how it got there. Full frontier-subagent guidance: read
+`references/advanced-orchestration.md`.

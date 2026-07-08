@@ -5,6 +5,36 @@ All notable changes to Flight Deck are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-07-08
+
+### Added
+
+- **Progressive-disclosure reference files** for mission-control:
+  `references/rationale.md` (the why-it-works rationale, cost model, and
+  history) and `references/advanced-orchestration.md` (Workflow tool
+  mechanics, supervised up-delegation limits, and frontier-subagent
+  prompting).
+
+### Changed
+
+- **mission-control SKILL.md restructured imperative-first**: the body was
+  cut from 390 to about 200 lines with no doctrine change, and the YAML
+  frontmatter (description/when_to_use) was tightened.
+- **Agent-calls-first path made primary** over the Workflow tool in
+  mission-control's execution guidance.
+- **mission-control README refreshed** to point at the `VERSION` file and
+  this CHANGELOG instead of a hard-coded version number.
+
+### Fixed
+
+- **Broken "above" cross-references** in SKILL.md, left over from the
+  restructuring.
+- **Missing test-discipline degradation note**: SKILL.md now documents what
+  happens when test-discipline is not installed.
+- **fanout-guard model-pin gotcha**: a model pinned only in agent
+  frontmatter was getting denied; now documented to pass the model
+  explicitly on every Agent call.
+
 ## [1.4.0] - 2026-07-08
 
 ### Added
@@ -97,6 +127,7 @@ Initial public release.
   default execution mode on Fable 5 and Opus-class sessions, with the start-of-session
   announcement and the opt-out phrases.
 
+[1.5.0]: https://github.com/CaseReed/flight-deck/releases/tag/v1.5.0
 [1.4.0]: https://github.com/CaseReed/flight-deck/releases/tag/v1.4.0
 [1.3.1]: https://github.com/CaseReed/flight-deck/releases/tag/v1.3.1
 [1.3.0]: https://github.com/CaseReed/flight-deck/releases/tag/v1.3.0
