@@ -109,6 +109,9 @@ Do not write to CLAUDE.md or settings.json without showing me the change first a
    `~/.claude/settings.json`.
 5. Restart your session.
 
+Verify an install: `bash tools/doctor.sh` (read-only, checks what's present against
+what's missing, with a remedy for each gap).
+
 ## Staying up to date
 
 The optional update-check hook (`flight-deck-update-check.sh`) nudges you at session

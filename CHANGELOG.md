@@ -5,6 +5,36 @@ All notable changes to Flight Deck are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-07-08
+
+### Added
+
+- **`tools/analyze-run.py`, a transcript analyzer**: a read-only post-hoc
+  reader of a Claude Code session transcript that prints an objective
+  mission-control scorecard (orchestrator model, Agent-call inventory and
+  model-pinning, per-tier token split, verification signal). Zero runtime
+  cost, nothing added to the skill.
+- **`tools/doctor.sh`, a read-only install check**: reports what is present
+  vs missing (skills, activation block, hooks and their registration,
+  jq/curl, VERSION, output style), required items vs optional, with a
+  remedy per gap.
+- **A "What to expect per session model" section** in the mission-control
+  README, plus a one-time non-frontier nudge in the activation block, so a
+  Sonnet/Haiku user knows mission-control is installed and opt-in (it is
+  silent by design until triggered on non-frontier sessions).
+- **A `compatibility` declaration** in the skill frontmatter (Claude Code
+  only, subagents required, hooks optional).
+
+### Changed
+
+- **fanout-guard hook approval hardened**: the `FABLE_OK` escape hatch must
+  now be the first non-empty line of the prompt/string-args, or a dedicated
+  `{"FABLE_OK": true}` key / exact array element for structured Workflow
+  args. It can no longer be disarmed by a brief that merely relays the
+  token in prose.
+- **Portability**: the recall and knowledge-pass steps no longer assume a
+  specific `MEMORY.md` auto-memory feature.
+
 ## [1.5.0] - 2026-07-08
 
 ### Added
@@ -127,6 +157,7 @@ Initial public release.
   default execution mode on Fable 5 and Opus-class sessions, with the start-of-session
   announcement and the opt-out phrases.
 
+[1.6.0]: https://github.com/CaseReed/flight-deck/releases/tag/v1.6.0
 [1.5.0]: https://github.com/CaseReed/flight-deck/releases/tag/v1.5.0
 [1.4.0]: https://github.com/CaseReed/flight-deck/releases/tag/v1.4.0
 [1.3.1]: https://github.com/CaseReed/flight-deck/releases/tag/v1.3.1

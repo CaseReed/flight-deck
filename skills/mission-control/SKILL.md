@@ -15,6 +15,7 @@ when_to_use: >-
   the user's working language.
 metadata:
   author: Julien Tavernier
+  compatibility: "Claude Code only; requires subagents; hooks optional"
 ---
 
 # mission-control: plan, delegate, verify
@@ -65,10 +66,11 @@ gets delegated, even simple single-pass work.
 ## Phase 1: PLAN (session model, maximum effort)
 
 1. **Recall first.** Before splitting anything, sweep what the project already knows: the
-   session's persistent memory (the MEMORY.md index and any entry it points to) and the
-   project's docs (CLAUDE.md, README, design notes) for prior decisions, conventions, and
-   gotchas bearing on this task. Cite in the plan what applies, or state "nothing relevant
-   found". A plan that ignores a recorded decision re-litigates settled ground.
+   session's persistent memory (whatever memory index this environment provides, if any)
+   and the project's docs (CLAUDE.md, README, design notes) for prior decisions,
+   conventions, and gotchas bearing on this task. Cite in the plan what applies, or state
+   "nothing relevant found". A plan that ignores a recorded decision re-litigates settled
+   ground.
 2. **Full spec first.** If the request is vague, ask ALL your questions in one turn (goal,
    scope, constraints, output format, examples of "good"). A vague request produces vague
    lots and lost subagents.
@@ -96,9 +98,9 @@ gets delegated, even simple single-pass work.
    even when an agent definition's frontmatter pins it: the fanout guard reads only the
    call parameter and denies the rest. If this environment exposes a Workflow tool and the
    run needs structured returns, lot-to-check chaining, or a token budget, read
-   `references/advanced-orchestration.md` first; on a Fable 5 session the fanout guard
-   denies Workflow calls unless you pass the `FABLE_OK` token, which you never add without
-   the user's explicit approval for that run.
+   `references/advanced-orchestration.md` first, which also documents the exact form of the
+   `FABLE_OK` token; on a Fable 5 session the fanout guard denies Workflow calls unless you
+   pass that token, which you never add without the user's explicit approval for that run.
 7. **Each brief is self-contained**, the subagent sees NOTHING of this conversation. Use
    this template:
 
@@ -154,8 +156,8 @@ gets delegated, even simple single-pass work.
     evidence. Lead with what was produced and verified; see Concision below.
 13. **Knowledge pass at close-out, per surface and verified.** Once the work is confirmed
     done, sweep three surfaces one at a time, actually opening each rather than concluding
-    "already covered" from memory: (a) persistent memory (the MEMORY.md index and touched
-    entries), (b) CLAUDE.md, the project's and the global one, (c) the project's own docs
+    "already covered" from memory: (a) persistent memory, and the entries this work
+    touched, (b) CLAUDE.md, the project's and the global one, (c) the project's own docs
     (README, design notes). On each, record what is durable and non-derivable that this
     work established (a decision, a gotcha, a convention, a lasting status) and prune what
     it made stale, routing by scope: a project-specific fact to that project's memory,

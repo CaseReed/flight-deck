@@ -24,10 +24,28 @@ ceiling, use the Workflow tool instead:
   from cache.
 
 **On a Fable 5 session with the fan-out guard hook active, the guard denies
-Workflow calls outright.** Once the user has explicitly approved running the
-workflow on Fable 5, include the token `FABLE_OK` in the workflow's args so
-the guard lets it through. Never add that token without the user's explicit
-approval for that run.
+Agent and Workflow calls outright** unless the call's model is an allowed
+cheap tier (Agent) or the user's approval token `FABLE_OK` is present. The
+guard checks exactly one dedicated position per shape, never a substring
+match anywhere in the call:
+
+- **Agent, `.tool_input.prompt`**: put `FABLE_OK` on its own first line,
+  i.e. the first non-empty line, trimmed, with nothing else on it.
+- **Workflow, `args` is a string** (e.g. the `agent()` script text): same
+  first-non-empty-line-trimmed rule, applied to that string.
+- **Workflow, `args` is a structured object**: add a top-level key
+  `{"FABLE_OK": true}`, value the JSON boolean `true` exactly. Any other
+  value, including the string `"true"` or `1`, does not approve, and no
+  other key or shape approves either: a top-level string value elsewhere in
+  the object (e.g. `{"approval": "FABLE_OK"}`) is never checked, because
+  that would let a relayed or poisoned document under an arbitrary key
+  disarm the guard.
+- **Workflow, `args` is an array**: include an element that is exactly the
+  string `"FABLE_OK"` (e.g. `["FABLE_OK", ...]`).
+
+Quoting the token elsewhere in the args does not work in any form; it has
+to be that dedicated line, key, or element. Never add that token without
+the user's explicit approval for that run.
 
 If this environment exposes no Workflow tool, and no SendMessage or
 resumeFromRunId either, fall back to parallel Agent calls even past 4 lots:

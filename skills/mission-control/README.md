@@ -116,6 +116,17 @@ Say any of these to skip the skill for a task or a session: "without mission con
 "no mission control", "do it yourself". These are also recognized in the user's
 working language (for example a French user's "sans mission control").
 
+## What to expect per session model
+
+On a frontier session (Claude Fable 5 / Opus), mission-control is the default mode and
+announces itself in one short line at the start of the session.
+
+On Sonnet or Haiku, it stays silent until you type a trigger phrase ("mission control",
+"orchestrate this task", "plan-delegate-verify"). That silence is normal, not a failed
+install: opt-in mode does not announce itself. The one exception: on the first
+substantial multi-lot task in the session, it reminds you once that it is installed and
+opt-in on this model, and that saying "mission control" turns it on.
+
 ## Requirements
 
 → Claude Code (subagents are built in).
