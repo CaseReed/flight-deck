@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **mission-control SKILL.md trimmed back under the adherence target** by collapsing a duplicated frontier-subagent-prompting section into a pointer.
+- **A duplicated frontier-subagent-prompting section in mission-control SKILL.md collapsed into a pointer.** The file still runs a little over the ~200-line adherence target, since 1.8.0's added doctrine outweighs the trim; a further slim is queued.
 - Smaller coherence fixes: the inline-execution exception generalized beyond one-line edits, typography tolerance defined for pixel-only references, the up-delegation cutoff rephrased to an observable stop condition, and the first-turn fail-open of the guard documented honestly in HOOKS.md.
 
 ## [1.7.1] - 2026-07-09
