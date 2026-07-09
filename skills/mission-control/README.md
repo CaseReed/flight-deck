@@ -33,9 +33,10 @@ retired.
    Opus-class sessions, the start-of-session announcement, and the opt-out phrases.
 3. Optional: wire the fan-out guard hook. It ships at the root of this package, at
    `hooks/fable5-fanout-guard.sh` (a sibling of `skills/`, not a file inside this skill
-   folder). On a Fable 5 session it denies any subagent call without an explicit
-   cheaper model and any `Workflow` call outright (workflow agents inherit the session
-   model, so one unpinned fan-out can burn a day's frontier quota). It installs
+   folder). On a frontier session (Fable 5 or Opus) it denies any subagent call
+   without an explicit cheaper model and any `Workflow` call outright (workflow agents
+   inherit the session model, so one unpinned fan-out can burn a day's frontier
+   quota). It installs
    separately from the skill: copy the script to `~/.claude/hooks/` and register it
    under `PreToolUse` in `~/.claude/settings.json`, following `hooks/HOOKS.md` at the
    package root:
@@ -58,14 +59,15 @@ retired.
    }
    ```
 
-   The hook is deliberately inert on non-Fable sessions: Opus users get the doctrine,
-   not the mechanical guard. Not required, the skill works on the honor system without
-   it, but the hook makes the calibration rule mechanically enforced instead of just
-   documented.
+   The guard now arms on frontier sessions generally, Fable 5 and Opus alike: both get
+   the mechanical enforcement, not just the doctrine. Only non-frontier sessions
+   (Sonnet, Haiku) are a no-op by design, since mission-control stays opt-in there. Not
+   required, the skill works on the honor system without it, but the hook makes the
+   calibration rule mechanically enforced instead of just documented.
 
    This is a global `~/.claude/hooks/` install with `settings.json` registration, not a
    skill-scoped `hooks:` frontmatter field, because the guard must protect Agent and
-   Workflow calls from the first turn of a Fable 5 session, before the skill has
+   Workflow calls from the first turn of a frontier session, before the skill has
    necessarily been invoked into context. A skill-scoped hook only activates after the
    skill loads, so it could not catch an early un-pinned fan-out.
 4. Restart Claude Code. That's it, no key to configure, the hook is the only optional extra.
@@ -106,9 +108,9 @@ the proof, run the repo's named check, cite its output).
   goes out as simple delegation (one calibrated subagent, brief and check only).
 → A single-piece creative text: splitting it breaks coherence (simple delegation to
   one agent).
-→ A micro fix on context already in the conversation, one trivial line and no more:
-  the brief would cost more than the fix, this is the one case the frontier model
-  handles directly.
+→ A single action whose delegation brief would cost more than the action itself (a
+  one-line edit, a fetch of one known URL, reading one short file to answer): the
+  frontier model handles it directly.
 
 ## Opt-out phrases
 

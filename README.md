@@ -42,10 +42,10 @@ afterthought.
   mission-control, test-discipline, and a craft skill (frontend-design by
   default), reproducing the design rather than reinventing it.
 - **hooks/** : three optional hooks: a non-blocking verify-reminder that nudges toward
-  verification before a push, a fanout-guard that mechanically enforces the
-  model-tier calibration whether or not the skill loaded, and a SessionStart
-  update-check that, once a day, notices when a newer release is out and offers to
-  update (it never overwrites anything on its own). Registration steps are in
+  verification before a push, a fanout-guard that mechanically stops silent frontier
+  fan-out (unpinned Agent calls and Workflow calls) whether or not the skill loaded, and
+  a SessionStart update-check that, once a day, notices when a newer release is out and
+  offers to update (it never overwrites anything on its own). Registration steps are in
   `hooks/HOOKS.md`.
 - **output-styles/** : an optional `Concise` output style. It makes Claude lead with the
   answer, keep the initial response tight, and expand only on request, across all of

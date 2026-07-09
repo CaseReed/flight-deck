@@ -11,7 +11,8 @@ the gaps named rather than glossed over. design-fidelity owns that check and com
 existing skills for everything else.
 
 The trajectory has four stages: **Import** (capture the design reference), **Build**
-(mission-control and a craft skill produce the UI), **Verify** (the fidelity gate,
+(mission-control and a craft skill produce the UI, or an ordinary craft build with the
+repo's own check when those skills are absent), **Verify** (the fidelity gate,
 this skill's one piece of unique work), and **Close-out** (the standard Flight Deck
 knowledge pass). It does not invent a design from scratch, that is Claude Design's job
 or a craft skill's when there is no reference to hold the build to; it only reproduces

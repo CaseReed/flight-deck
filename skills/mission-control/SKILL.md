@@ -36,8 +36,11 @@ pattern works, the cost model, and the doctrine's history: read `references/rati
   never after; otherwise you check what was produced, not what was asked.
 - **Real code routes to `sonnet` minimum, never `haiku` in write mode.** A lot that
   writes or edits code meant to run is `sonnet` even when the brief sounds mechanical.
-- **Two parallel WRITE lots never share a file.** Sequence them, or isolate with
-  `isolation: worktree` on the Agent call.
+- **Two parallel WRITE lots never share a file; shared mutable state counts the same way
+  (the git index, a lockfile or package install, a dev server or port, a test database), so
+  sequence those lots; a worktree** (`isolation: worktree` on the Agent call) **isolates
+  file and git-index conflicts, but a shared port or database needs sequencing or a
+  distinct instance.**
 - **Verification is not optional.** Skip it and the pattern collapses: you just paid
   less for an unchecked result.
 
@@ -59,9 +62,10 @@ gets delegated, even simple single-pass work.
   goes back once with the exact edit list, single loop. A routine single-pass task run
   inline on the frontier model is the mistake this mode corrects.
 - **Inline (the only frontier-model exceptions):** conversational turns (answering,
-  explaining, analyzing, giving an opinion); ONE trivial-line micro fix on context already
-  loaded; and what a subagent cannot do (a user-facing decision, a tool unavailable to
-  subagents, a call that commits the rest of the session).
+  explaining, analyzing, giving an opinion); a single action whose delegation brief would
+  cost more than the action itself (a one-line edit, a fetch of one known URL, reading one
+  short file to answer a question); and what a subagent cannot do (a user-facing decision,
+  a tool unavailable to subagents, a call that commits the rest of the session).
 
 ## Phase 1: PLAN (session model, maximum effort)
 
@@ -98,9 +102,9 @@ gets delegated, even simple single-pass work.
    even when an agent definition's frontmatter pins it: the fanout guard reads only the
    call parameter and denies the rest. If this environment exposes a Workflow tool and the
    run needs structured returns, lot-to-check chaining, or a token budget, read
-   `references/advanced-orchestration.md` first, which also documents the exact form of the
-   `FABLE_OK` token; on a Fable 5 session the fanout guard denies Workflow calls unless you
-   pass that token, which you never add without the user's explicit approval for that run.
+   `references/advanced-orchestration.md` first; on a frontier session the fanout guard denies
+   Workflow calls without the `FABLE_OK` token, granted only with the user's explicit approval
+   (exact accepted forms: `references/advanced-orchestration.md`, `HOOKS.md`).
 7. **Each brief is self-contained**, the subagent sees NOTHING of this conversation. Use
    this template:
 
@@ -130,7 +134,12 @@ gets delegated, even simple single-pass work.
    mechanical checks: delegate the mechanically verifiable criteria (counts, links,
    formats, tests) to fresh-context verifier subagents (`haiku`/`sonnet`, low effort), one
    per lot, in parallel; keep the judgment criteria and the final call for yourself. A
-   fresh verifier beats self-critique, including yours.
+   fresh verifier beats self-critique, including yours. For a code lot, do not trust the
+   quoted check output on its own, it is the executing agent's self-report: re-run the
+   repo's named check once (yourself, or via one cheap verifier subagent) and confirm
+   the lot's own assertions still hold (its tests pass, its error is gone). Compare
+   outcomes, not the literal tail, since a merged repo state legitimately shifts counts
+   and line numbers; a genuine outcome mismatch fails the lot.
 10. **Check for over-delivery, not just under-delivery.** Done criteria measure presence
     ("it does X"), never restraint ("it does ONLY X"), so a lot can pass every criterion
     and still be over-engineered. For each deliverable, hunt for what the criteria did not
@@ -169,8 +178,14 @@ gets delegated, even simple single-pass work.
 ## Routing grid
 
 **Routing is relative to your session model**, not to fixed names. The session model
-orchestrates; execution routes to the tiers BELOW it. Never delegate a lot to a model more
-expensive than your session model, the orchestrator is the ceiling.
+orchestrates; execution routes to tiers at or below it, never above it: the orchestrator is
+the ceiling. Equal-tier delegation via an explicit pin is allowed and still pays off, same
+token rate but a fresh context window, parallelism, and your own context kept for
+orchestration: `opus` on an Opus session is fine. Two things still need the user's explicit
+approval, the bar the fanout guard's token embodies: up-delegating a lot to a model above
+your session (for example Fable from an Opus session), and letting the frontier session fan
+out on itself, an unpinned lot that inherits the session model or an explicit Fable pin,
+which is the exact burn the guard exists to stop.
 
 | Role | Model | Effort | When |
 |---|---|---|---|
@@ -195,9 +210,10 @@ expensive than your session model, the orchestrator is the ceiling.
 **Supervised up-delegation (the one exception):** a session on a lower or equal tier may
 occasionally delegate ONE named high-value lot to a more expensive model under hard limits:
 scope narrow and explicit, `effort` capped at what the lot needs, assessment-only for an
-audit (it reports, it modifies nothing), and the run watched with a cutoff on a
-runaway-cost proxy such as transcript size. Before up-delegating a lot: read
-`references/advanced-orchestration.md` first.
+audit (it reports, it modifies nothing), and the run watched by an observable procedure:
+run it synchronously (or via `Monitor` where the harness exposes it) under a wall-clock
+cap, and kill it at the first sign the response sprawls past the brief. Before
+up-delegating a lot: read `references/advanced-orchestration.md` first.
 
 ## Concision of deliverables and reports
 
@@ -210,10 +226,5 @@ behind a "done" claim. A one-line answer stays one line.
 
 ## Prompting a frontier subagent
 
-When a lot runs on a frontier model (the orchestrating session, or an up-delegated lot):
-set `effort` per lot explicitly (`medium` for routine work, `high` only where detection
-quality is genuinely critical), state the intent once rather than enumerating cases, and
-**never ask it to echo, transcribe, or explain its internal reasoning in its response**
-(it risks a safety-classifier refusal); ask for the conclusion and the evidence, not a
-replay of how it got there. Full frontier-subagent guidance: read
-`references/advanced-orchestration.md`.
+Never ask a frontier subagent to echo, transcribe, or replay its reasoning; set
+`effort` per lot explicitly. Full guidance: read `references/advanced-orchestration.md`.

@@ -1,13 +1,15 @@
 #!/bin/bash
-# Fable 5 fan-out guard.
+# Frontier fan-out guard (filename kept as fable5-* for install compatibility).
 # Born after a real incident: an unpinned workflow spawned dozens of
 # frontier-model agents and burned through a session's quota.
-# On Fable 5 sessions, Agent/Workflow calls must follow the mission-control
-# model calibration: delegated lots run on sonnet/haiku (opus for the hardest),
-# Fable 5 stays in the main loop only. Workflow agents INHERIT the session
-# model, so an unpinned fan-out burns Fable 5 quota on every subagent.
+# Arms on frontier sessions (Fable 5 and Opus); non-frontier sessions
+# (Sonnet/Haiku) stay a no-op. On a frontier session, Agent/Workflow calls
+# must follow the mission-control model calibration: delegated lots run on
+# sonnet/haiku (opus for the hardest), the session model stays in the main
+# loop only. Workflow agents INHERIT the session model, so an unpinned
+# fan-out burns frontier quota on every subagent.
 # Escape hatch: when the user has explicitly approved running agents on
-# Fable 5 for that run, the token FABLE_OK must appear in one of these
+# the session model for that run, the token FABLE_OK must appear in one of these
 # dedicated positions, never as a substring match anywhere in the tool
 # input:
 #   - Agent: FABLE_OK is the first non-empty line of the call's prompt
@@ -42,7 +44,7 @@ transcript=$(printf '%s' "$input" | "$JQ" -r '.transcript_path // empty')
 # settings.json fallback below is best-effort only, not a reliable safety
 # net: Claude Code does not store a top-level "model" key in
 # ~/.claude/settings.json in practice, so this fallback is usually empty,
-# and the transcript read above is what actually detects a Fable 5 session.
+# and the transcript read above is what actually detects a frontier session.
 # Parsed as JSONL (one JSON object per line) rather than grepped as raw
 # text, so a "model" key inside a tool_input (e.g. an Agent call's input)
 # never gets mistaken for the session's own model.
@@ -55,8 +57,10 @@ if [ -z "$session_model" ]; then
 fi
 
 case "$session_model" in
-  *fable*) ;;      # Fable session: enforce below
-  *) exit 0 ;;     # any other model: no restriction
+  # loose substring match, fails toward arming: every current model id
+  # containing opus/fable is an expensive frontier tier
+  *fable*|*opus*) ;;   # frontier session (Fable 5 or Opus): enforce below
+  *) exit 0 ;;         # any non-frontier model: no restriction
 esac
 
 # Explicit user approval token, checked entirely in jq so each shape of
@@ -130,12 +134,12 @@ if [ "$tool" = "Agent" ]; then
     sonnet|haiku|opus|claude-sonnet*|claude-haiku*|claude-opus*)
       exit 0 ;;
   esac
-  deny "Session Fable 5: mission-control calibration is mandatory. Re-invoke Agent with an explicit model ('sonnet' default, 'haiku' for trivial lots, 'opus' only for the hardest verify lots). Fable 5 stays in the main loop. If the user explicitly approved Fable 5 subagents, put FABLE_OK on its own first line of the prompt."
+  deny "Frontier session ($session_model): mission-control calibration is mandatory. Re-invoke Agent with an explicit model ('sonnet' default, 'haiku' for trivial lots, 'opus' only for the hardest verify lots). The session model stays in the main loop. If the user explicitly approved running subagents without a pin from the allowed tiers (sonnet, haiku, or opus), put FABLE_OK on its own first line of the prompt."
   exit 0
 fi
 
 if [ "$tool" = "Workflow" ]; then
-  deny "Session Fable 5: workflow agents inherit the session model, so an unpinned workflow runs every subagent on Fable 5. Author the script yourself with model pinned on EVERY agent() call (sonnet/haiku, opus only for the hardest lots) and state the agent count and models to the user first. Named workflows (code-review etc.) are barred as-is. If the user explicitly approved: when args is a string, put FABLE_OK on its own first line; when args is a structured object, add a top-level {\"FABLE_OK\": true} key (value must be the boolean true) instead; when args is an array, include the element \"FABLE_OK\"."
+  deny "Frontier session ($session_model): a Workflow runs every subagent on the inherited session model, so it is barred here. Two ways forward: (1) drop the Workflow and fan out with parallel Agent calls instead, each with an explicit pinned model (sonnet/haiku, opus only for the hardest lots); or (2) if the user explicitly approved running the workflow on the session model, pass the approval token: when args is a string, put FABLE_OK on its own first line; when args is a structured object, add a top-level {\"FABLE_OK\": true} key (value must be the boolean true); when args is an array, include the element \"FABLE_OK\". Pinning models inside the script alone does NOT lift this bar."
   exit 0
 fi
 

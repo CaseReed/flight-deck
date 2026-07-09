@@ -1,7 +1,7 @@
 # Advanced orchestration mechanics
 
 Low-frequency mechanics: the Workflow tool, supervised up-delegation, and
-Fable-5-specific subagent prompting. SKILL.md points here when a run actually
+frontier subagent prompting. SKILL.md points here when a run actually
 needs one of these; most runs don't.
 
 ## The Workflow tool (4+ lots, structured returns, chaining, budgets)
@@ -23,9 +23,9 @@ ceiling, use the Workflow tool instead:
 - `resumeFromRunId` re-runs only the changed lots on a retry; the rest comes
   from cache.
 
-**On a Fable 5 session with the fan-out guard hook active, the guard denies
-Agent and Workflow calls outright** unless the call's model is an allowed
-cheap tier (Agent) or the user's approval token `FABLE_OK` is present. The
+**On a frontier session (Fable 5 or Opus) with the fan-out guard hook active,
+the guard denies Agent and Workflow calls outright** unless the call's model is an allowed
+cheaper-or-equal tier (Agent) or the user's approval token `FABLE_OK` is present. The
 guard checks exactly one dedicated position per shape, never a substring
 match anywhere in the call:
 
@@ -57,7 +57,10 @@ The routing rule always points down: never delegate to a model more
 expensive than the session's. The one narrow exception: a session on a lower
 or equal tier may, deliberately and occasionally, delegate a single
 high-value lot (a fine-grained audit, a root-cause dig) to a more expensive
-model, for example Fable 5, under hard limits:
+model, for example Fable 5, under hard limits. Delegating up to a tier
+strictly above the session's requires the user's explicit approval, the same
+approval the fan-out guard's token embodies; delegating to an equal tier does
+not need it.
 
 - **Scope is narrow and explicit**: one lot, named precisely, never "the
   rest of the task while you're at it."
@@ -66,33 +69,37 @@ model, for example Fable 5, under hard limits:
 - **Assessment-only when the lot is an audit**: it reports findings, it does
   not modify anything; a fix, if needed, comes back as a separate,
   normally-routed lot.
-- **The run is watched with a cutoff**: track a proxy for runaway cost, such
-  as transcript size, and stop the run if it grows well past what the lot's
-  scope justifies.
+- **The run is watched with an observable procedure**: run the up-delegated
+  lot synchronously, or via `Monitor` where the harness exposes it, with a
+  hard scope statement in the brief and a wall-clock cap, and stop or kill
+  the run at the first sign the response is sprawling past the brief.
+  Tracking transcript size is not an option, the orchestrator cannot see
+  that mid-run.
 
 Up-tiering is a supervised exception you reach for on purpose, never a
 default you fall into.
 
-## Prompting subagents for Fable 5
+## Prompting a frontier subagent
 
-When a lot is routed to Fable 5, whether it is the orchestrating session
-itself or a lot up-delegated under the exception above, brief it like this:
+When a lot is routed to a frontier model (Fable 5 or Opus), whether it is
+the orchestrating session itself or a lot up-delegated under the exception
+above, brief it like this:
 
 - **Set `effort` per lot explicitly.** `medium` is the default for routine
   analysis or writing; reserve `high` for a lot where detection quality is
   genuinely critical (a security-sensitive review, a hard root-cause dig).
-  Don't reach for `high` by reflex, Fable 5 at `medium` often already
-  outperforms older models running at their top setting.
+  Don't reach for `high` by reflex, a frontier model at `medium` often
+  already outperforms older models running at their top setting.
 - **Keep briefs self-contained.** The subagent sees none of this
   conversation: inline the material, the done criteria, and the *why*.
-- **One instruction beats an enumeration.** Fable 5 follows a short, clear
-  principle well; state the intent once and trust it to generalize instead
-  of listing every case it should or shouldn't handle.
+- **One instruction beats an enumeration.** A frontier model follows a
+  short, clear principle well; state the intent once and trust it to
+  generalize instead of listing every case it should or shouldn't handle.
 - **On a long-running lot, anchor progress claims in tool results.** Ask it
   to report only what it can point to evidence for, and to say plainly when
   something is not yet verified, rather than asserting a status from memory.
-- **Never ask a Fable 5 subagent to echo, transcribe, or explain its
-  internal reasoning in its response text.** Prompts like "show your
+- **On Fable 5 specifically, never ask it to echo, transcribe, or explain
+  its internal reasoning in its response text.** Prompts like "show your
   reasoning step by step" risk tripping the `reasoning_extraction` safety
   classifier, which can trigger a refusal and a fallback to Opus for that
   call (documented in Anthropic's "Prompting Claude Fable 5" guide:

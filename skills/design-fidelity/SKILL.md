@@ -119,6 +119,11 @@ breakpoint render, or a comparison genuinely cannot be produced, the gate report
 dimension as "not-verifiable" and says why, rather than passing it in silence or
 stalling the task.
 
+The same rule applies to its sibling skills. When mission-control or test-discipline is
+not installed, or is opt-in and untriggered on this session, run the build as an
+ordinary craft task with the repo's named check inline; the fidelity gate still runs.
+design-fidelity never hard-depends on its sibling skills.
+
 ## 6. Close-out
 
 Once the fidelity gate has run, close out with the standard Flight Deck knowledge

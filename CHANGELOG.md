@@ -5,6 +5,25 @@ All notable changes to Flight Deck are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2026-07-09
+
+### Changed
+
+- **The fanout guard now arms on frontier sessions generally (Fable 5 and Opus), not Fable 5 alone.** The package recommends running on Opus 4.8, so an Opus session no longer gets the doctrine with the enforcement switched off: an unpinned `Agent` call or any `Workflow` is held to the same explicit-model and approval-token rules. The hook filename is unchanged for install compatibility.
+- **The routing grid resolves the equal-tier case.** Equal-tier delegation is explicitly allowed (same token rate, but fresh context and parallelism); up-delegation to a model above the session is the one exception and requires the user's explicit approval; the ceiling rule now reads "at or below, never above".
+- **VERIFY re-runs the named check for a code lot** instead of trusting the executing agent's quoted output, closing a verification-theater hole.
+- **Parallel-lot isolation now covers shared mutable state** (the git index, lockfiles and installs, dev ports, test databases), not only shared files.
+- **The Workflow deny message states the two real options** (fall back to pinned parallel Agent calls, or pass the approval token) instead of the dead-end suggestion to pin the script.
+
+### Added
+
+- **design-fidelity degrades when its sibling skills are absent or untriggered**: it runs the build as an ordinary craft task with the repo's named check inline, and never hard-depends on mission-control or test-discipline.
+
+### Fixed
+
+- **mission-control SKILL.md trimmed back under the adherence target** by collapsing a duplicated frontier-subagent-prompting section into a pointer.
+- Smaller coherence fixes: the inline-execution exception generalized beyond one-line edits, typography tolerance defined for pixel-only references, the up-delegation cutoff rephrased to an observable stop condition, and the first-turn fail-open of the guard documented honestly in HOOKS.md.
+
 ## [1.7.1] - 2026-07-09
 
 ### Added
@@ -200,6 +219,7 @@ Initial public release.
   default execution mode on Fable 5 and Opus-class sessions, with the start-of-session
   announcement and the opt-out phrases.
 
+[1.8.0]: https://github.com/CaseReed/flight-deck/releases/tag/v1.8.0
 [1.7.1]: https://github.com/CaseReed/flight-deck/releases/tag/v1.7.1
 [1.7.0]: https://github.com/CaseReed/flight-deck/releases/tag/v1.7.0
 [1.6.0]: https://github.com/CaseReed/flight-deck/releases/tag/v1.6.0

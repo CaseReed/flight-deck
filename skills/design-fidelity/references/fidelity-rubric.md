@@ -125,6 +125,12 @@ reference for a given text role. A close-but-not-equal value (e.g. reference
 specifies 24px/1.3, render ships 22px/1.2) is a divergence, not a rounding
 tolerance; record the exact intended and built values.
 
+When the reference is pixel-only (a screenshot or PDF), check typography at
+token-step granularity, since exact px and line-height are not reliably
+measurable from it; the exact-value strictness above applies only when the
+reference states values (a Claude Design frame, a spec, or an export with
+styles).
+
 ### 2.4 Color and tokens
 
 Checks:
