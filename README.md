@@ -35,12 +35,14 @@ afterthought.
   check, cite its output, and scale how much proof a change needs to how big the change
   is. Called by mission-control's code lots, and usable on its own.
 - **skills/design-fidelity/** : the design-handoff companion. Governs the Claude
-  Design to Claude Code handoff and proves, in a real browser, that the shipped
+  Design to Claude Code handoff and proves, in a real browser (the Playwright MCP
+  by default, the claude-in-chrome extension as a fallback), that the shipped
   UI matches the design. It owns an independent fidelity gate (design reference
   vs the rendered UI, a structured rubric, a gap contract, token discipline, a
   ranked punch-list, an adversarial re-check) and orchestrates the build through
   mission-control, test-discipline, and a craft skill (frontend-design by
-  default), reproducing the design rather than reinventing it.
+  default) when they are present, and runs standalone with the repo's own check
+  when they are not, reproducing the design rather than reinventing it.
 - **hooks/** : three optional hooks: a non-blocking verify-reminder that nudges toward
   verification before a push, a fanout-guard that mechanically stops silent frontier
   fan-out (unpinned Agent calls and Workflow calls) whether or not the skill loaded, and
@@ -63,9 +65,11 @@ mission control", "no mission control", or "do it yourself".
 
 **Recommended session:** run Flight Deck on Opus 4.8 at High reasoning effort (Claude Code's `/effort high`). High is the sweet spot for orchestration and verification; higher effort is not automatically better, so reach for xHigh only on the genuinely hardest lots.
 
-Routing always points down to a cheaper tier, with one narrow, supervised exception
-for a single high-value lot going to a more expensive model; see "Supervised
-up-delegation" in `skills/mission-control/SKILL.md` (full limits in
+Routing points at or below the session's tier: a cheaper tier for most lots, or an
+equal-tier lot via an explicit pin (same rate, but a fresh context and parallelism).
+The one exception is a single high-value lot going to a model above the session,
+which needs explicit approval; see "Supervised up-delegation" in
+`skills/mission-control/SKILL.md` (full limits in
 `skills/mission-control/references/advanced-orchestration.md`).
 
 ## Install
