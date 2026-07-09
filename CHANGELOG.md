@@ -5,6 +5,23 @@ All notable changes to Flight Deck are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2026-07-09
+
+### Changed
+
+- **design-fidelity now renders through the Playwright MCP by default** for the
+  fidelity gate's visual comparison, in place of the claude-in-chrome extension,
+  which becomes a documented fallback. Playwright drives a real browser and gives
+  cleaner, more reliable captures. The stable-primitives rule, README, and rubric
+  are updated to match.
+
+### Added
+
+- **Render-capture cleanup in the design-fidelity close-out**: the Playwright MCP
+  screenshots are transient gate evidence, purged once the user has signed off on
+  the frontend, with the capture directory added to `.gitignore` in a git project,
+  so the captures do not pollute the workspace.
+
 ## [1.6.0] - 2026-07-08
 
 ### Added
@@ -157,6 +174,7 @@ Initial public release.
   default execution mode on Fable 5 and Opus-class sessions, with the start-of-session
   announcement and the opt-out phrases.
 
+[1.7.0]: https://github.com/CaseReed/flight-deck/releases/tag/v1.7.0
 [1.6.0]: https://github.com/CaseReed/flight-deck/releases/tag/v1.6.0
 [1.5.0]: https://github.com/CaseReed/flight-deck/releases/tag/v1.5.0
 [1.4.0]: https://github.com/CaseReed/flight-deck/releases/tag/v1.4.0

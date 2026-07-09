@@ -18,7 +18,7 @@ or a craft skill's when there is no reference to hold the build to; it only repr
 and verifies a design that already exists.
 
 The fidelity gate itself runs seven moves in order: capture the authoritative
-reference, render the real app in Chrome next to it, compare on a structured rubric
+reference, render the real app with the Playwright MCP next to it, compare on a structured rubric
 (structure, spacing, typography, tokens, component states, responsive behavior,
 motion, accessibility), apply the gap contract for anything the reference leaves
 undefined, check token discipline, emit a ranked punch-list of real divergences, and
@@ -27,7 +27,7 @@ passes only when the punch-list has zero blocking entries; a failing gate feeds 
 punch-list into the next build lot.
 
 The skill has no hard dependency on the undocumented `claude-design` MCP. It depends
-only on stable primitives (the design reference, the rendered app, Chrome) and
+only on stable primitives (the design reference, the rendered app, a real browser) and
 degrades to an export or the design URL itself when the MCP or import command is
 unavailable, reporting a dimension as not-verifiable rather than passing it in
 silence.
@@ -72,7 +72,8 @@ divergence, and the fidelity gate flags it as one.
 ## Requirements
 
 - Claude Code with skills.
-- claude-in-chrome, to render the real app next to the design reference for the
-  visual comparison step.
+- The Playwright MCP, to render the real app next to the design reference for the
+  visual comparison step. It gives cleaner, more reliable captures than the claude-in-chrome
+  extension, which works as a fallback.
 - A Claude Design reference as input: a `claude.ai/design/<id>` URL, or an export
   (standalone HTML, `.zip`, PDF, screenshot) when the URL is not available.

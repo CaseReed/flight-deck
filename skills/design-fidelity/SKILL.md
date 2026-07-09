@@ -10,7 +10,7 @@ description: >-
   ui-ux-pro-max when present) as the build craft standard. The Claude Design
   reference is authoritative: craft fills what the design leaves undefined, it
   never overrides the explicit design. Depends only on stable primitives (the
-  design reference, the rendered app, Chrome), never on the undocumented beta
+  design reference, the rendered app, a real browser), never on the undocumented beta
   claude-design MCP internals, and degrades gracefully when a command or the
   MCP is unavailable. Triggers include "implement this Claude Design design",
   "design handoff", "does the UI match the design", "verify design fidelity",
@@ -74,9 +74,11 @@ Seven moves, run in order. The full rubric each dimension is checked against liv
 1. **Capture the authoritative reference** from a stable source: a `claude.ai/design/<id>`
    URL, or an export (standalone HTML, `.zip`, PDF, screenshot) when the URL is not
    available.
-2. **Render the real app and open it in Chrome** at the target breakpoints, next to the
+2. **Render the real app and capture it with the Playwright MCP** at the target breakpoints, next to the
    reference, so the comparison is visual and side by side, not a description from
-   memory.
+   memory. The Playwright MCP is the default rendering tool: it drives a real browser and
+   produces cleaner, more reliable captures than the claude-in-chrome extension, which stays
+   as a fallback when Playwright is unavailable.
 3. **Compare on the rubric**: structure, spacing, typography, tokens, component states,
    responsive behavior, motion, accessibility. Full detail, checks, and per-dimension
    verdicts are in `references/fidelity-rubric.md`, not repeated here.
@@ -107,9 +109,10 @@ a divergence, and the fidelity gate flags it as one.
 ## 5. Degradation and stable-primitives rule
 
 This skill has no hard dependency on the undocumented `claude-design` MCP. It depends
-only on stable primitives: the design reference, the rendered app, and Chrome. On MCP
-or import-command failure, it falls back to an export or the design URL itself as the
-reference and continues the gate from there.
+only on stable primitives: the design reference, the rendered app, and a real browser,
+rendered through the Playwright MCP by default (the claude-in-chrome extension is a
+fallback). On MCP or import-command failure, it falls back to an export or the design
+URL itself as the reference and continues the gate from there.
 
 It never blocks silently on a source it could not obtain. When a reference, a
 breakpoint render, or a comparison genuinely cannot be produced, the gate reports that
@@ -122,6 +125,12 @@ Once the fidelity gate has run, close out with the standard Flight Deck knowledg
 pass: memory, CLAUDE.md, and the project's own docs, updated wherever the run
 surfaced something durable (a recurring divergence pattern, a token gap, a command
 that degraded).
+
+Clean up the render captures. The Playwright MCP writes its screenshots to disk (its
+output directory, `.playwright-mcp/` in the working directory unless configured otherwise). Those captures
+are transient evidence for the gate, not deliverables: keep them until the user has signed
+off on the frontend, then delete them so they do not pollute the workspace. If the project
+is a git repository, also add the capture directory to `.gitignore`.
 
 Code-to-design push-back, feeding a shipped fix back into the Claude Design source, is
 out of scope for this skill. That is phase 2.

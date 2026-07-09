@@ -22,7 +22,8 @@ addition to, the defaults above. Do not silently drop a defined breakpoint to
 save time.
 
 Both the reference and the rendered app are captured at each breakpoint before
-comparison starts. A dimension checked at only one breakpoint, or checked against
+comparison starts. The rendered app is captured through the Playwright MCP, the default
+rendering tool for this gate. A dimension checked at only one breakpoint, or checked against
 a reference screenshot that does not cover that breakpoint, is not-verifiable at
 the missing breakpoint, not silently passed.
 
@@ -61,7 +62,7 @@ order is swapped.
 
 Checks:
 - Padding and margin on the outermost and inner containers, measured in the
-  browser (computed styles or a ruler tool), compared to the reference's spacing.
+  browser (computed styles via the Playwright MCP, or a ruler tool), compared to the reference's spacing.
 - Gap between repeated items (list items, grid cells, stacked sections).
 - Vertical rhythm: consistent spacing step between stacked blocks (e.g. section
   to section, heading to body).
