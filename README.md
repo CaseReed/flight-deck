@@ -61,6 +61,8 @@ to trigger it explicitly, say "mission control", "orchestrate this task", or
 "plan-delegate-verify". To skip it, for one task or the whole session, say "without
 mission control", "no mission control", or "do it yourself".
 
+**Recommended session:** run Flight Deck on Opus 4.8 at High reasoning effort (Claude Code's `/effort high`). High is the sweet spot for orchestration and verification; higher effort is not automatically better, so reach for xHigh only on the genuinely hardest lots.
+
 Routing always points down to a cheaper tier, with one narrow, supervised exception
 for a single high-value lot going to a more expensive model; see "Supervised
 up-delegation" in `skills/mission-control/SKILL.md` (full limits in

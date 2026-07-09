@@ -5,6 +5,32 @@ All notable changes to Flight Deck are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.1] - 2026-07-09
+
+### Added
+
+- **A capture protocol in the design-fidelity rubric**: every screenshot is taken
+  with animations frozen and reduced motion, after fonts load and the page is
+  foregrounded and settled (not on network idle), at a 2x scale, full page and per
+  breakpoint, with dynamic regions masked. This closes the false "broken" reads
+  that come from a frame caught mid-animation or from a backgrounded tab whose
+  entrance animations never fired.
+- **A "read before you score" analysis protocol (rubric section 2.0)**: the gate
+  now describes each region before judging, runs an explicit breakage-signature
+  checklist, cross-references the accessibility snapshot against the screenshot to
+  catch elements that exist in the DOM but never painted, requires cited evidence
+  for a PASS, and zooms into suspicious regions. This closes the false "looks fine"
+  verdicts on a visibly broken render.
+- **A recommended-session note** in the README and the mission-control per-model
+  section: run Flight Deck on Opus 4.8 at High reasoning effort by default, with
+  xHigh reserved for the genuinely hardest lots.
+
+### Changed
+
+- **design-fidelity gate moves 2 and 3** point at the new capture and reading
+  protocols, and the adversarial re-check re-runs the breakage checklist and the
+  DOM-versus-pixel cross-check.
+
 ## [1.7.0] - 2026-07-09
 
 ### Changed
@@ -174,6 +200,7 @@ Initial public release.
   default execution mode on Fable 5 and Opus-class sessions, with the start-of-session
   announcement and the opt-out phrases.
 
+[1.7.1]: https://github.com/CaseReed/flight-deck/releases/tag/v1.7.1
 [1.7.0]: https://github.com/CaseReed/flight-deck/releases/tag/v1.7.0
 [1.6.0]: https://github.com/CaseReed/flight-deck/releases/tag/v1.6.0
 [1.5.0]: https://github.com/CaseReed/flight-deck/releases/tag/v1.5.0

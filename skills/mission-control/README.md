@@ -121,6 +121,8 @@ working language (for example a French user's "sans mission control").
 On a frontier session (Claude Fable 5 / Opus), mission-control is the default mode and
 announces itself in one short line at the start of the session.
 
+For best results, run that frontier session on Opus 4.8 at High reasoning effort (`/effort high`), the default this package is tuned for. High is the sweet spot for planning and verification; xHigh is slower and heavier for little gain on most lots, so save it for the genuinely hardest reasoning.
+
 On Sonnet or Haiku, it stays silent until you type a trigger phrase ("mission control",
 "orchestrate this task", "plan-delegate-verify"). That silence is normal, not a failed
 install: opt-in mode does not announce itself. The one exception: on the first

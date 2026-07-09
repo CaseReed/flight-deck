@@ -78,10 +78,10 @@ Seven moves, run in order. The full rubric each dimension is checked against liv
    reference, so the comparison is visual and side by side, not a description from
    memory. The Playwright MCP is the default rendering tool: it drives a real browser and
    produces cleaner, more reliable captures than the claude-in-chrome extension, which stays
-   as a fallback when Playwright is unavailable.
+   as a fallback when Playwright is unavailable. Capture each frame cleanly per the capture protocol in `references/fidelity-rubric.md` (animations frozen, fonts loaded, page foregrounded, retina scale), since a frame caught mid-animation or from a backgrounded tab reads as broken when the build is fine.
 3. **Compare on the rubric**: structure, spacing, typography, tokens, component states,
    responsive behavior, motion, accessibility. Full detail, checks, and per-dimension
-   verdicts are in `references/fidelity-rubric.md`, not repeated here.
+   verdicts are in `references/fidelity-rubric.md`, not repeated here. Before scoring, read the render the way section 2.0 of the rubric requires: describe each region, run the breakage-signature checklist, cross-check the accessibility snapshot against the screenshot, and hold a PASS to cited evidence rather than a `looks fine`.
 4. **Apply the gap contract**: anything the reference leaves undefined (an unstated
    state, an in-between breakpoint, dark mode, an a11y specific) is a craft decision,
    not a divergence, and is checked against the craft bar instead.

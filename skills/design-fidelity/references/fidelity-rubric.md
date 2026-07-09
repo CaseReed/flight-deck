@@ -8,7 +8,7 @@ themselves; read `SKILL.md` first for the trajectory, then use this file to run
 move 3 (compare), move 4 (gap contract), move 5 (token discipline), move 6
 (punch-list), and move 7 (adversarial re-check).
 
-## 1. Breakpoint set
+## 1. Breakpoints and capture
 
 Verify at these breakpoints by default:
 
@@ -27,6 +27,19 @@ rendering tool for this gate. A dimension checked at only one breakpoint, or che
 a reference screenshot that does not cover that breakpoint, is not-verifiable at
 the missing breakpoint, not silently passed.
 
+### Capture protocol
+
+A wrong verdict often traces to a bad capture, not a bad build. Capture every screenshot so the frame is deterministic and readable, or the comparison downstream is worthless:
+
+- **Freeze motion.** Disable animations and transitions for the shot (Playwright's `animations: 'disabled'` screenshot option), and set the browser context to reduced motion (`reducedMotion: 'reduce'`). A frame caught mid-animation, or an entrance animation that never fired, reads as a broken or missing element when the build is fine.
+- **Foreground the page before capturing.** A backgrounded or hidden tab throttles or pauses `requestAnimationFrame`, so scroll-in and mount animations stay stuck at their initial state (typically `opacity: 0`), and the screenshot shows content that looks absent. Bring the page to front (`page.bringToFront()`), or disable animations per the point above, before the shot. This one gotcha produces false "broken" reads that have nothing to do with the app.
+- **Wait for the render to settle.** Wait for `load`, then for `document.fonts.ready`, then for a real app-ready signal (a key element visible, the skeleton or spinner gone), then a short buffer for late layout shifts. Do not wait on network idle; a single analytics beacon or long-poll never resolves it and the capture hangs or fires early.
+- **Capture at readable resolution.** Use a 2x device scale factor (`deviceScaleFactor: 2`, or the Playwright MCP `scale: 'device'` option) so small UI text and fine spacing are legible in the frame. At 1x, 12-13px text is often too ambiguous for a reliable read.
+- **Capture full page and each breakpoint.** Take a full-page shot to catch overflow and broken content below the fold, and a shot at each breakpoint from the set above, since layout defects are frequently breakpoint-specific. For a lazy-loading page, scroll the content into view first so a stitched full-page shot does not render blank regions.
+- **Mask genuinely dynamic regions** (timestamps, avatars, live counters) with Playwright's `mask` option so variable content is not scored as a defect.
+
+The captures are transient gate evidence; purge them once the user has signed off, per the close-out in `SKILL.md`.
+
 ## 2. Dimensions
 
 Run every dimension below against both the reference and the render, at every
@@ -41,6 +54,29 @@ record one verdict:
 - **not-verifiable**: the check could not be run. State why (reference does not
   show this state, breakpoint not captured, tool could not measure it, and so
   on). Never use not-verifiable to avoid a check that could have been run.
+
+### 2.0 Reading a render before scoring it
+
+The failure mode this gate exists to prevent is a confident "looks fine" on a render that is visibly broken. Vision models are documented to be weak at absolute single-image judgment and biased toward passing; these rules force the read onto actual evidence.
+
+- **Describe before you judge.** Before scoring any dimension, describe literally what is visible in each region of the render (header, nav, hero, body, footer), one region at a time. State what is there, not whether it "looks right". A verdict that skips the description is not trustworthy.
+- **Run the breakage-signature checklist first.** Before the dimensions below, check the render against the failure signatures listed under this subsection. Any hit is a blocking divergence on its own, regardless of how the dimensions score.
+- **A PASS needs cited evidence, not a vibe.** Marking a dimension conforms requires naming the regions inspected and what confirms each rendered correctly. "Looks fine" with no cited region is not a valid conforms; treat it as not-verifiable until evidence is recorded.
+- **Cross-reference the accessibility snapshot against the screenshot.** Pull the DOM and accessibility snapshot (Playwright MCP `browser_snapshot`) for the same state as the pixel capture. Any element the snapshot reports as present and visible that cannot be located in the screenshot is a near-mechanical rendering-bug signal (a zero-height container, a stuck `opacity: 0`, a z-index or overlap, an off-screen position). This catches the exact case where the markup is there but nothing painted, which a pixel-only read misses.
+- **Zoom into anything suspicious.** When the coarse full-page read flags a region, re-capture that region alone (an element or clip screenshot) and judge the crop on its own. Small defects that vanish in a full-frame read become obvious zoomed in.
+
+Breakage signatures, any one of which is a blocking divergence:
+
+- Horizontal scroll, or content overflowing past the viewport edge.
+- A container that should hold content rendering as a zero-height or collapsed empty strip.
+- Unstyled flash left on screen: default serif text, unstyled buttons, raw browser defaults anywhere.
+- Text with too little contrast to read, up to invisible text the same color as its background.
+- Overlapping or clipped text: letters cut off, or text running behind another element.
+- A broken or missing image: a broken-image icon, an alt-text box, or a blank rectangle where an image belongs.
+- A layout collapsed to a single stacked column at a breakpoint that should render multi-column.
+- Elements positioned off-screen or outside their intended container.
+- A large unexplained empty gap, usually a collapsed sibling or a missing background.
+- Console errors tied to the region under test, pulled alongside the screenshot.
 
 ### 2.1 Structure and layout
 
@@ -249,6 +285,7 @@ Procedure:
      a few pixels off the named breakpoint.
    - Tokens: re-grep the changed files for hex codes, `rgb(`, `px` literals in
      typography or spacing, and inline styles that bypass the design system.
+   - Rendering integrity: re-run the breakage-signature checklist from section 2.0, re-cross-reference the accessibility snapshot against the screenshot, and zoom into any region that looked borderline in the first pass.
 2. Compare the adversarial pass's findings against the first pass's punch-list.
    Any item found in the adversarial pass that the first pass marked conforms is
    a first-pass miss; add it to the punch-list with its own severity, do not
